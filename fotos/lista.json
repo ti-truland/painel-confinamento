@@ -1,0 +1,50 @@
+[
+ {
+  "arquivo": "linhas_abc.jpg",
+  "legenda": "Linhas A, B e C do confinamento",
+  "w": 1920,
+  "h": 1080
+ },
+ {
+  "arquivo": "quarentena.jpg",
+  "legenda": "Currais de quarentena (EPE)",
+  "w": 1799,
+  "h": 1200
+ },
+ {
+  "arquivo": "fabrica.jpg",
+  "legenda": "Fábrica de ração",
+  "w": 1600,
+  "h": 1200
+ },
+ {
+  "arquivo": "silagem_colheita.jpg",
+  "legenda": "Colheita de silagem",
+  "w": 1600,
+  "h": 1200
+ },
+ {
+  "arquivo": "compostagem.jpg",
+  "legenda": "Pátio de compostagem",
+  "w": 1920,
+  "h": 1080
+ },
+ {
+  "arquivo": "limpeza_currais.jpg",
+  "legenda": "Limpeza de currais",
+  "w": 1600,
+  "h": 1200
+ },
+ {
+  "arquivo": "fabricacao_racao.jpg",
+  "legenda": "Fabricação de ração",
+  "w": 1600,
+  "h": 1200
+ },
+ {
+  "arquivo": "silagem_armazenamento.jpg",
+  "legenda": "Armazenamento de silagem",
+  "w": 1600,
+  "h": 1200
+ }
+]
