@@ -6,125 +6,239 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Painel Diário Truland Confinamento</title>
 <style>
-  html { font-size: calc(0.5vw + 0.45vh + 5px); }
+  :root {
+    --verde: #3d441f; --verde-2: #5a652c; --verde-3: #8a9650; --verde-tint: #e9ecdc;
+    --bg: #f1f0e9; --card: #ffffff; --ink: #1c1c1a; --ink-2: #55554f; --muted: #8b8b84; --line: #e1e0d8;
+    --ok: #2e8b45; --ok-t: #e0f1e4; --at: #c98a00; --at-f: #f3b531; --at-t: #fdf0c7; --gr: #c62828; --gr-t: #fbe1e0; --nd: #b4b4ad; --nd-t: #eeeee8;
+  }
+  html { font-size: calc(0.55vw + 0.5vh + 6px); }
   * { box-sizing: border-box; }
-  body { margin: 0; background: #f4f4f1; color: #1d1d1b; font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.3; }
-  .tp { padding: 1.1rem 1.4rem 0.8rem; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-  .head { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
-  .title { font-size: 1.75rem; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
-  .sub { color: #666; font-size: 0.95rem; }
-  .sub b { color: #1d1d1b; font-weight: 600; }
-  .take { font-size: 1.1rem; margin: 0.35rem 0 0.6rem; }
-  .tabs { display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.7rem; }
-  .tab { font-size: 0.85rem; padding: 0.25rem 0.8rem; border-radius: 99px; border: 1px solid #d6d6d0; background: #fff; color: #444; }
-  .tab.on { background: #1d1d1b; color: #fff; border-color: #1d1d1b; }
-  .bar { height: 0.2rem; width: 6rem; background: #ddd; border-radius: 2px; overflow: hidden; margin-left: auto; }
-  .bar i { display: block; height: 100%; width: 0; background: #888; }
-  .page { display: none; flex: 1; min-height: 0; flex-direction: column; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.25; }
+  .tp { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* cabeçalho institucional */
+  .head { background: var(--verde); color: #fff; padding: 0.55rem 1.4rem; display: flex; align-items: center; gap: 1.2rem; position: relative; overflow: hidden; }
+  .head .logo { height: 1.55rem; width: auto; fill: #fff; display: block; }
+  .head .sep { width: 1px; height: 1.9rem; background: rgba(255,255,255,0.35); }
+  .head .ttl { font-size: 1.25rem; font-weight: 600; letter-spacing: 0.01em; }
+  .head .ttl small { display: block; font-size: 0.72rem; font-weight: 400; opacity: 0.85; letter-spacing: 0.04em; text-transform: uppercase; }
+  .head .meta { margin-left: auto; text-align: right; font-size: 0.82rem; opacity: 0.95; line-height: 1.35; }
+  .head .meta b { font-weight: 600; }
+  .head .clock { font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 1.2rem; }
+  .head .mark { position: absolute; right: 22%; top: -1.2rem; height: 5.2rem; width: auto; fill: #fff; opacity: 0.08; }
+
+  /* barra de páginas */
+  .tabs { display: flex; gap: 0.45rem; align-items: center; padding: 0.55rem 1.4rem 0.25rem; }
+  .tab { font-size: 0.82rem; padding: 0.22rem 0.85rem; border-radius: 99px; border: 1px solid #d3d3cb; background: #fff; color: #555; }
+  .tab.on { background: var(--verde); color: #fff; border-color: var(--verde); }
+  .tabs .bar { height: 0.22rem; width: 7rem; background: #ddd; border-radius: 2px; overflow: hidden; margin-left: auto; }
+  .tabs .bar i { display: block; height: 100%; width: 0; background: var(--verde-3); }
+  .take { font-size: 1.05rem; margin: 0.2rem 1.4rem 0.45rem; color: var(--ink-2); }
+  .take b { color: var(--ink); font-weight: 600; }
+
+  .page { display: none; flex: 1; min-height: 0; flex-direction: column; padding: 0 1.4rem; }
   .page.on { display: flex; }
   .grid { display: grid; gap: 0.7rem; margin-bottom: 0.7rem; }
-  .g6 { grid-template-columns: repeat(6, 1fr); }
-  .g4 { grid-template-columns: repeat(4, 1fr); }
-  .g21 { grid-template-columns: 2fr 1fr; flex: 1; min-height: 0; }
-  .g32 { grid-template-columns: 3fr 2fr; flex: 1; min-height: 0; }
-  .g11 { grid-template-columns: 1fr 1fr; flex: 1; min-height: 0; }
-  .card { background: #fff; border: 1px solid #e3e3de; border-radius: 0.6rem; padding: 0.8rem 0.95rem; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
-  .card h2 { font-size: 1.05rem; font-weight: 600; margin: 0 0 0.1rem; }
-  .note { color: #777; font-size: 0.78rem; margin: 0 0 0.5rem; }
-  .kpi .lab { color: #666; font-size: 0.85rem; }
-  .kpi .val { font-size: 2.3rem; font-weight: 500; line-height: 1.05; font-variant-numeric: tabular-nums; margin: 0.15rem 0; }
-  .kpi .val.sm { font-size: 1.55rem; }
-  .kpi .delta { font-size: 0.85rem; font-variant-numeric: tabular-nums; }
-  .good { color: #1b7f3b; } .warn { color: #b26a00; } .bad { color: #c0262d; } .muted { color: #777; }
-  .scroll { overflow: hidden; flex: 1; min-height: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 0.7rem; padding: 0.8rem 0.95rem; min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+  .card h2 { font-size: 1rem; font-weight: 600; margin: 0 0 0.1rem; color: var(--verde); }
+  .note { color: var(--muted); font-size: 0.74rem; margin: 0 0 0.45rem; }
+  .fill { flex: 1; min-height: 0; }
+
+  /* semáforo */
+  .dot { display: inline-block; width: 0.75rem; height: 0.75rem; border-radius: 50%; vertical-align: middle; margin-right: 0.35rem; background: var(--nd); }
+  .dot.ok { background: var(--ok); } .dot.atencao { background: var(--at-f); } .dot.grave { background: var(--gr); }
+  .pill { display: inline-block; padding: 0.08rem 0.55rem; border-radius: 99px; font-size: 0.72rem; font-weight: 700; white-space: nowrap; color: #fff; }
+  .pill.grave { background: var(--gr); } .pill.atencao { background: var(--at-f); color: #3a2a00; } .pill.info { background: #d9d9d2; color: #444; } .pill.ok { background: var(--ok); }
+  .good { color: var(--ok); } .warn { color: var(--at); } .bad { color: var(--gr); } .muted { color: var(--muted); }
+
+  /* KPIs */
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+  .kpi { position: relative; border-left: 0.35rem solid var(--nd); }
+  .kpi.ok { border-left-color: var(--ok); } .kpi.atencao { border-left-color: var(--at-f); } .kpi.grave { border-left-color: var(--gr); }
+  .kpi .lab { color: var(--ink-2); font-size: 0.82rem; }
+  .kpi .val { font-size: 2.6rem; font-weight: 600; line-height: 1.05; margin: 0.15rem 0 0.1rem; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .kpi .val.sm { font-size: 1.75rem; }
+  .kpi .val .u { font-size: 0.95rem; font-weight: 500; color: var(--muted); margin-left: 0.2rem; }
+  .kpi .delta { font-size: 0.82rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .kpi .delta b { font-weight: 600; }
+
+  /* listas de ação */
+  .acoes { list-style: none; margin: 0; padding: 0; overflow: hidden; }
+  .acoes li { display: grid; grid-template-columns: auto 1fr auto; gap: 0.7rem; align-items: start; padding: 0.45rem 0; border-bottom: 1px solid var(--line); }
+  .acoes .t { font-weight: 600; font-size: 0.95rem; }
+  .acoes .d { color: var(--ink-2); font-size: 0.78rem; margin-top: 0.1rem; }
+  .acoes .who { font-size: 0.7rem; color: var(--verde); border: 1px solid var(--verde-tint); background: var(--verde-tint); border-radius: 0.4rem; padding: 0.15rem 0.5rem; white-space: nowrap; font-weight: 600; }
+  .mais { color: var(--muted); font-size: 0.78rem; padding-top: 0.4rem; }
+
+  /* estado dos currais (chips) */
+  .chips { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .chip { display: flex; align-items: baseline; gap: 0.35rem; padding: 0.35rem 0.75rem; border-radius: 0.5rem; background: var(--nd-t); border: 1px solid var(--line); }
+  .chip b { font-size: 1.5rem; font-weight: 600; }
+  .chip span { font-size: 0.78rem; color: var(--ink-2); }
+  .chip.grave { background: var(--gr-t); } .chip.atencao { background: var(--at-t); } .chip.ok { background: var(--ok-t); }
+  .penlist { display: flex; flex-wrap: wrap; gap: 0.35rem; align-content: flex-start; overflow: hidden; }
+  .penlist .ocard { font-size: 0.74rem; padding: 0.15rem 0.5rem; min-width: 0; border-width: 1.5px; }
+  .penlist .ocard b { display: inline; font-size: 0.8rem; margin-right: 0.3rem; }
+  .movdia { font-size: 0.86rem; line-height: 1.4; color: var(--ink-2); }
+  .movdia b { color: var(--ink); font-weight: 600; }
+  .movdia div { padding: 0.15rem 0; border-bottom: 1px solid var(--line); }
+
   table { width: 100%; border-collapse: collapse; font-size: 0.86rem; font-variant-numeric: tabular-nums; }
-  th, td { text-align: left; padding: 0.28rem 0.45rem; border-bottom: 1px solid #ecece8; vertical-align: top; }
-  th { color: #777; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  th, td { text-align: left; padding: 0.3rem 0.45rem; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { color: var(--muted); font-weight: 600; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; }
   td.n, th.n { text-align: right; }
-  .pill { display: inline-block; padding: 0.05rem 0.5rem; border-radius: 99px; font-size: 0.72rem; font-weight: 700; border: 1px solid currentColor; white-space: nowrap; }
-  .pill.grave { color: #c0262d; } .pill.atencao { color: #b26a00; } .pill.info { color: #777; }
-  .al-t { font-weight: 600; } .al-d { color: #777; font-size: 0.8rem; }
+  .scroll { overflow: hidden; flex: 1; min-height: 0; }
+
   .chart { flex: 1; min-height: 0; position: relative; }
   .chart svg { width: 100%; height: 100%; display: block; }
-  .legend { display: flex; gap: 1.2rem; font-size: 0.78rem; color: #777; margin-bottom: 0.3rem; }
-  .legend i { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 2px; vertical-align: -0.1rem; margin-right: 0.3rem; }
-  .na { color: #777; font-style: italic; font-size: 0.9rem; }
-  .foot { color: #999; font-size: 0.7rem; margin-top: 0.5rem; display: flex; justify-content: space-between; }
-  .lotes td, .lotes th { padding: 0.22rem 0.38rem; font-size: 0.8rem; }
+  .legend { display: flex; gap: 1.1rem; font-size: 0.76rem; color: var(--ink-2); margin: 0.1rem 0 0.4rem; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 0.85rem; height: 0.85rem; border-radius: 3px; vertical-align: -0.12rem; margin-right: 0.3rem; border: 1px solid rgba(0,0,0,0.15); }
+  .na { color: var(--muted); font-style: italic; font-size: 0.9rem; }
+  .vazio { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--muted); font-size: 1.1rem; padding: 2rem; }
+  .foot { color: var(--muted); font-size: 0.68rem; margin: 0.4rem 1.4rem 0.5rem; display: flex; justify-content: space-between; }
+
+  /* mapa */
+  .mapa { flex: 1; min-height: 0; display: flex; }
+  .mapa svg { width: 100%; height: 100%; display: block; }
+  .pen rect { stroke-width: 2.5; }
+  .pen.ok rect { fill: var(--ok-t); stroke: var(--ok); }
+  .pen.atencao rect { fill: var(--at-t); stroke: var(--at-f); }
+  .pen.grave rect { fill: var(--gr-t); stroke: var(--gr); }
+  .pen.vazio rect { fill: #f6f6f2; stroke: #d3d3cb; stroke-dasharray: 4 3; }
+  .pen.prov rect { stroke-dasharray: 6 4; }
+  .pen text { font-family: inherit; }
+  .pen .nm { font-weight: 700; font-size: 20px; fill: var(--ink); }
+  .pen.vazio .nm { fill: var(--muted); font-weight: 600; }
+  .pen .cab { font-size: 14px; fill: var(--ink); font-weight: 600; }
+  .pen .f1 { font-size: 14.5px; font-weight: 700; }
+  .pen.grave .f1 { fill: var(--gr); } .pen.atencao .f1 { fill: var(--at); } .pen.ok .f1 { fill: var(--ok); }
+  .pen .f2 { font-size: 12.5px; fill: var(--ink-2); font-weight: 500; }
+  .rowlab { font-size: 15px; font-weight: 700; fill: var(--verde); }
+  .rowsub { font-size: 12px; fill: var(--muted); }
+  .cocho { stroke: var(--verde-2); stroke-width: 5; stroke-linecap: round; }
+  .road { fill: #e6e5dd; }
+  .roadlab { font-size: 11px; fill: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .pen .lt { font-size: 12px; fill: var(--muted); }
+  .outros { display: flex; align-items: center; gap: 0.7rem; padding-top: 0.5rem; border-top: 1px solid var(--line); margin-top: 0.3rem; }
+  .outros .olab { font-size: 0.78rem; color: var(--verde); font-weight: 700; white-space: nowrap; }
+  .outros #outros { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .ocard { border-radius: 0.45rem; border: 2px solid var(--nd); background: var(--nd-t); padding: 0.25rem 0.6rem; font-size: 0.78rem; line-height: 1.25; min-width: 7.5rem; }
+  .ocard b { font-size: 0.95rem; display: block; }
+  .ocard.ok { border-color: var(--ok); background: var(--ok-t); } .ocard.atencao { border-color: var(--at-f); background: var(--at-t); } .ocard.grave { border-color: var(--gr); background: var(--gr-t); }
+  .ocard .m { font-weight: 700; } .ocard.grave .m { color: var(--gr); } .ocard.atencao .m { color: var(--at); } .ocard.ok .m { color: var(--ok); }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo-truland" viewBox="70 405 870 190"><path d="M239.72,462.54l-111.29,111.99c-1.21,1.21-.85,3.27.7,3.99,1.32.61,2.66,1.19,4,1.73,4.37,1.76,9.36.72,12.69-2.63l96.96-97.58c3.33-3.35,4.36-8.38,2.61-12.77-.54-1.35-1.11-2.7-1.72-4.03-.71-1.56-2.76-1.92-3.97-.71Z"/><path d="M226.1,444.09l-116,116.74c-1.63,1.64-1.52,4.35.25,5.83,1.82,1.51,3.69,2.93,5.59,4.27,1.56,1.1,3.68.91,5.03-.45l114.71-115.44c1.35-1.36,1.53-3.49.44-5.06-1.33-1.92-2.74-3.8-4.24-5.63-1.47-1.79-4.16-1.9-5.79-.26Z"/><path d="M209.48,428.66l-114.71,115.44c-1.35,1.36-1.53,3.49-.44,5.06,1.33,1.92,2.74,3.8,4.24,5.63,1.47,1.79,4.16,1.9,5.79.26l116-116.74c1.63-1.64,1.52-4.35-.25-5.83-1.82-1.51-3.69-2.93-5.59-4.27-1.56-1.1-3.68-.91-5.03.45Z"/><path d="M184.63,421.52l-96.96,97.58c-3.33,3.35-4.36,8.38-2.61,12.77.54,1.35,1.11,2.7,1.72,4.03.71,1.56,2.76,1.92,3.97.71l111.29-111.99c1.21-1.21.85-3.27-.7-3.99-1.32-.61-2.66-1.19-4-1.73-4.37-1.76-9.36-.72-12.69,2.63Z"/><path d="M104.18,438.13c-20.29,20.42-28.37,48.47-24.24,74.97.12.79,1.1,1.11,1.67.54l97.6-98.22c.56-.57.26-1.55-.53-1.68-26.33-4.16-54.21,3.97-74.5,24.39Z"/><path d="M248.85,485.5l-97.6,98.22c-.56.57-.26,1.55.53,1.68,26.33,4.16,54.21-3.97,74.5-24.39,20.29-20.42,28.37-48.47,24.24-74.97-.12-.79-1.1-1.11-1.67-.54Z"/><polygon points="104.18 561.01 104.18 561.02 104.17 561.01 104.18 561.01"/><path d="M294.73,477.6v-17.67h68.64v17.67h-23.5v61.62h-21.64v-61.62h-23.5Z"/><path d="M387.42,539.22v-79.29h34.11c6,0,11.25,1.08,15.72,3.25,4.48,2.16,7.95,5.28,10.42,9.34,2.47,4.06,3.7,8.89,3.7,14.5s-1.27,10.42-3.81,14.34c-2.54,3.92-6.11,6.9-10.71,8.94-4.6,2.04-9.97,3.06-16.12,3.06h-20.15v-16.82h16.63c2.49,0,4.61-.34,6.37-1.01,1.76-.67,3.12-1.71,4.08-3.11.96-1.4,1.44-3.2,1.44-5.4s-.48-4.01-1.44-5.43c-.96-1.42-2.32-2.48-4.08-3.19-1.76-.71-3.88-1.06-6.37-1.06h-8.1v61.89h-21.69ZM430.64,539.22l-18.92-36.29h22.81l19.45,36.29h-23.34Z"/><path d="M510.86,540.24c-6.82,0-12.8-1.2-17.93-3.59-5.13-2.39-9.13-5.8-11.99-10.22-2.86-4.42-4.29-9.64-4.29-15.67v-50.82h21.53v49.01c0,2.48.55,4.67,1.65,6.57,1.1,1.9,2.6,3.39,4.5,4.47,1.9,1.08,4.09,1.62,6.58,1.62s4.64-.54,6.56-1.62c1.92-1.08,3.43-2.57,4.53-4.47,1.1-1.9,1.65-4.09,1.65-6.57v-49.01h21.53v50.82c0,6.03-1.43,11.25-4.29,15.67-2.86,4.42-6.87,7.82-12.02,10.22-5.15,2.39-11.16,3.59-18.01,3.59Z"/><path d="M571.35,539.22v-79.29h21.69v61.62h32.56v17.67h-54.25Z"/><path d="M646.67,539.22l25.95-79.29h29.47l26.75,79.29h-24.52l-9.17-30.76c-1.95-6.67-3.81-13.52-5.57-20.57-1.76-7.04-3.44-14.09-5.04-21.15h5.12c-1.53,7.06-3.09,14.11-4.69,21.15-1.6,7.04-3.38,13.9-5.33,20.57l-8.9,30.76h-24.09ZM665.91,524.48v-16.28h43.7v16.28h-43.7Z"/><path d="M752.04,539.22v-79.29h23.29l19.03,31.13c1.46,2.41,2.88,4.92,4.26,7.53,1.39,2.61,2.76,5.47,4.13,8.59,1.37,3.12,2.73,6.62,4.08,10.48l-2.08,1.38c-.18-2.87-.38-6.19-.61-9.95-.23-3.76-.44-7.45-.61-11.07-.18-3.62-.27-6.63-.27-9.05v-29.05h22.17v79.29h-23.24l-17.75-28.95c-1.78-2.94-3.43-5.83-4.96-8.65-1.53-2.82-3.04-5.84-4.53-9.07-1.49-3.23-3.14-6.86-4.96-10.91l2.72-.27c.28,3.72.54,7.42.77,11.09.23,3.67.41,7.05.53,10.14.12,3.09.19,5.64.19,7.66v28.95h-22.17Z"/><path d="M873.35,459.94v79.29h-21.69v-79.29h21.69ZM882.36,539.22h-21.74v-18.3h20.84c4.05,0,7.47-.66,10.26-1.97,2.79-1.31,4.89-3.52,6.32-6.62,1.42-3.1,2.13-7.33,2.13-12.69s-.73-9.64-2.19-12.74c-1.46-3.1-3.62-5.32-6.5-6.65-2.88-1.33-6.43-2-10.66-2h-20.52v-18.31h21.74c8.17,0,15.24,1.6,21.21,4.79,5.97,3.19,10.58,7.75,13.83,13.68,3.25,5.92,4.88,13,4.88,21.23s-1.62,15.25-4.85,21.18c-3.23,5.92-7.81,10.47-13.72,13.65-5.92,3.18-12.92,4.76-21.02,4.76Z"/></symbol>
+  <symbol id="marca-truland" viewBox="70 405 190 190"><path d="M239.72,462.54l-111.29,111.99c-1.21,1.21-.85,3.27.7,3.99,1.32.61,2.66,1.19,4,1.73,4.37,1.76,9.36.72,12.69-2.63l96.96-97.58c3.33-3.35,4.36-8.38,2.61-12.77-.54-1.35-1.11-2.7-1.72-4.03-.71-1.56-2.76-1.92-3.97-.71Z"/><path d="M226.1,444.09l-116,116.74c-1.63,1.64-1.52,4.35.25,5.83,1.82,1.51,3.69,2.93,5.59,4.27,1.56,1.1,3.68.91,5.03-.45l114.71-115.44c1.35-1.36,1.53-3.49.44-5.06-1.33-1.92-2.74-3.8-4.24-5.63-1.47-1.79-4.16-1.9-5.79-.26Z"/><path d="M209.48,428.66l-114.71,115.44c-1.35,1.36-1.53,3.49-.44,5.06,1.33,1.92,2.74,3.8,4.24,5.63,1.47,1.79,4.16,1.9,5.79.26l116-116.74c1.63-1.64,1.52-4.35-.25-5.83-1.82-1.51-3.69-2.93-5.59-4.27-1.56-1.1-3.68-.91-5.03.45Z"/><path d="M184.63,421.52l-96.96,97.58c-3.33,3.35-4.36,8.38-2.61,12.77.54,1.35,1.11,2.7,1.72,4.03.71,1.56,2.76,1.92,3.97.71l111.29-111.99c1.21-1.21.85-3.27-.7-3.99-1.32-.61-2.66-1.19-4-1.73-4.37-1.76-9.36-.72-12.69,2.63Z"/><path d="M104.18,438.13c-20.29,20.42-28.37,48.47-24.24,74.97.12.79,1.1,1.11,1.67.54l97.6-98.22c.56-.57.26-1.55-.53-1.68-26.33-4.16-54.21,3.97-74.5,24.39Z"/><path d="M248.85,485.5l-97.6,98.22c-.56.57-.26,1.55.53,1.68,26.33,4.16,54.21-3.97,74.5-24.39,20.29-20.42,28.37-48.47,24.24-74.97-.12-.79-1.1-1.11-1.67-.54Z"/><polygon points="104.18 561.01 104.18 561.02 104.17 561.01 104.18 561.01"/></symbol>
+</svg>
 <div class="tp">
   <div class="head">
-    <h1 class="title">Truland Confinamento · Painel Diário</h1>
-    <div class="sub">Dados de <b id="ref">—</b> · comparação com <b id="refant">—</b> · relatórios: <span id="rels">—</span> · <span id="clock">—</span></div>
+    <svg class="logo" viewBox="0 0 870 190"><use href="#logo-truland"/></svg>
+    <div class="sep"></div>
+    <div class="ttl">Painel Diário do Confinamento<small>Fazenda Marca de Casco · Itapetininga-SP</small></div>
+    <svg class="mark" viewBox="0 0 190 190"><use href="#marca-truland"/></svg>
+    <div class="meta">Dados de <b id="ref">—</b> · comparação com <b id="refant">—</b><br><span id="rels">—</span></div>
+    <div class="clock" id="clock">—</div>
   </div>
-  <p class="take" id="take">—</p>
   <div class="tabs" id="tabs">
-    <span class="tab on" data-page="resumo">Resumo e atenção</span>
+    <span class="tab on" data-page="visao">Visão do dia</span>
+    <span class="tab" data-page="mapa">Mapa do confinamento</span>
+    <span class="tab" data-page="consumo">Consumo e lotes</span>
     <span class="tab" data-page="fabrica">Fábrica</span>
     <span class="tab" data-page="trato">Trato</span>
-    <span class="tab" data-page="lotes">Lotes</span>
     <div class="bar"><i id="bar"></i></div>
   </div>
+  <p class="take" id="take">—</p>
 
-  <section class="page on" data-page="resumo">
-    <div class="grid g6">
-      <div class="card kpi"><div class="lab">Cabeças nos lotes</div><div class="val" id="k-cab">—</div><div class="delta" id="k-cab-d">—</div></div>
-      <div class="card kpi"><div class="lab">Consumo MS (kg/cab/dia)</div><div class="val" id="k-ms">—</div><div class="delta" id="k-ms-d">—</div></div>
-      <div class="card kpi"><div class="lab">Ração fornecida × fabricada (kg)</div><div class="val sm" id="k-fxf">—</div><div class="delta" id="k-fxf-d">—</div></div>
-      <div class="card kpi"><div class="lab">Trato realizado × previsto (kg)</div><div class="val sm" id="k-tr">—</div><div class="delta" id="k-tr-d">—</div></div>
-      <div class="card kpi"><div class="lab">Lotes com abate vencido</div><div class="val" id="k-ab">—</div><div class="delta" id="k-ab-d">—</div></div>
-      <div class="card kpi"><div class="lab">Pontos de atenção</div><div class="val" id="k-al">—</div><div class="delta" id="k-al-d">—</div></div>
+  <!-- 1. VISÃO DO DIA -->
+  <section class="page on" data-page="visao">
+    <div class="grid" style="grid-template-columns: 3fr 2fr; flex: 1; min-height: 0; margin-bottom: 0.6rem">
+      <div style="display:flex; flex-direction:column; gap:0.7rem; min-height:0">
+        <div class="kpis">
+          <div class="card kpi" id="kpi-cab"><div class="lab">Cabeças nos lotes</div><div class="val" id="k-cab">—</div><div class="delta" id="k-cab-d">—</div></div>
+          <div class="card kpi" id="kpi-ms"><div class="lab">Consumo de MS (kg/cab/dia)</div><div class="val" id="k-ms">—</div><div class="delta" id="k-ms-d">—</div></div>
+          <div class="card kpi" id="kpi-tr"><div class="lab">Ração fornecida nos tratos (kg)</div><div class="val" id="k-tr">—</div><div class="delta" id="k-tr-d">—</div></div>
+          <div class="card kpi" id="kpi-fab"><div class="lab">Ração fabricada p/ confinamento (kg)</div><div class="val" id="k-fxf">—</div><div class="delta" id="k-fxf-d">—</div></div>
+          <div class="card kpi" id="kpi-ab"><div class="lab">Lotes com abate vencido</div><div class="val" id="k-ab">—</div><div class="delta" id="k-ab-d">—</div></div>
+          <div class="card kpi" id="kpi-al"><div class="lab">Ocorrências do dia</div><div class="val" id="k-al">—</div><div class="delta" id="k-al-d">—</div></div>
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; flex: 1; min-height: 0; margin: 0">
+          <div class="card"><h2>Estado dos currais</h2><p class="note">Currais ocupados, classificados pelo pior indicador do lote.</p><div class="chips" id="chips"></div>
+            <p class="note" style="margin:0.6rem 0 0.3rem">Onde agir — o mapa detalha cada curral:</p><div class="penlist fill" id="penlist"></div></div>
+          <div class="card"><h2>Rebanho por proprietário</h2><p class="note">Cabeças e lotes no Zootécnico.</p>
+            <table><thead><tr><th>Rebanho</th><th class="n">Cab</th><th class="n">Δ dia</th><th class="n">Lotes</th></tr></thead><tbody id="prop-body"></tbody></table>
+            <h2 style="margin-top:0.7rem">Movimentação do dia</h2><div id="movdia" class="movdia"></div></div>
+        </div>
+      </div>
+      <div class="card"><h2>Ação hoje</h2><p class="note">Ocorrências graves primeiro; depois as de atenção. Área sugerida à direita.</p>
+        <ul class="acoes fill" id="acoes"></ul><div class="mais" id="acoes-mais"></div></div>
     </div>
-    <div class="grid g21">
-      <div class="card"><h2>Pontos de atenção do dia</h2><p class="note">Comparação com o dia anterior. Graves primeiro.</p>
-        <div class="scroll"><table><thead><tr><th>Nível</th><th>Bloco</th><th>Ocorrência</th></tr></thead><tbody id="al-body"></tbody></table></div></div>
-      <div style="display:flex;flex-direction:column;gap:0.7rem;min-height:0">
-        <div class="card"><h2>Rebanho por proprietário</h2><p class="note">Cabeças e lotes no Zootécnico.</p>
-          <table><thead><tr><th>Rebanho</th><th class="n">Cab</th><th class="n">Δ dia</th><th class="n">Lotes</th></tr></thead><tbody id="prop-body"></tbody></table></div>
-        <div class="card"><h2>Horários dos tratos</h2><p class="note">1º e último trato</p><p class="na">Não constam nos relatórios Sentinela. Solicitar ao suporte TGC.</p></div>
+  </section>
+
+  <!-- 2. MAPA -->
+  <section class="page" data-page="mapa">
+    <div class="card" style="flex:1; min-height:0">
+      <div style="display:flex; align-items:baseline; gap:1.2rem"><h2>Mapa do confinamento — onde agir hoje</h2>
+        <div class="legend" style="margin:0"><span><i style="background:var(--gr-t);border-color:var(--gr)"></i>Grave</span><span><i style="background:var(--at-t);border-color:var(--at-f)"></i>Atenção</span><span><i style="background:var(--ok-t);border-color:var(--ok)"></i>Conforme</span><span><i style="background:#f6f6f2;border-color:#c9c9c1"></i>Vazio</span><span class="muted">Dentro de cada curral: lote · cabeças · principal ocorrência · MS do dia e dias de cocho</span></div></div>
+      <div class="mapa" id="mapa"></div>
+      <div class="outros"><span class="olab">Fora das linhas A–C</span><div id="outros"></div></div>
+    </div>
+  </section>
+
+  <!-- 3. CONSUMO E LOTES -->
+  <section class="page" data-page="consumo">
+    <div class="grid" style="grid-template-columns: 3fr 2fr; flex:1; min-height:0; margin-bottom:0.6rem">
+      <div class="card"><h2>Consumo de matéria seca por lote (kg/cab/dia)</h2>
+        <div class="legend"><span><i style="background:var(--ok)"></i>Dentro de ±10% do dia anterior</span><span><i style="background:var(--at-f)"></i>Variação acima de ±10%</span><span><i style="background:var(--gr)"></i>Consumo praticamente zero</span><span><i style="background:#fff;border:2px solid #777"></i>Média dos últimos 5 dias</span></div>
+        <div class="chart" id="cons-chart"></div></div>
+      <div style="display:flex; flex-direction:column; gap:0.7rem; min-height:0">
+        <div class="card" style="flex:1.3; min-height:0"><h2>Abate vencido</h2><p class="note">Lotes com data de abate prevista já passada, do mais atrasado ao mais recente.</p>
+          <div class="scroll"><table><thead><tr><th>Curral</th><th>Lote</th><th>Rebanho</th><th class="n">Cab</th><th class="n">Peso prj.</th><th class="n">Atraso</th></tr></thead><tbody id="ab-body"></tbody></table></div></div>
+        <div class="card" style="flex:1; min-height:0"><h2>Movimentação e dieta</h2><p class="note">Lotes novos, saídas do relatório e trocas de ração.</p>
+          <div class="scroll"><ul class="acoes" id="mov"></ul></div></div>
       </div>
     </div>
   </section>
 
+  <!-- 4. FÁBRICA -->
   <section class="page" data-page="fabrica">
-    <div class="grid g4">
-      <div class="card kpi"><div class="lab">Fabricado p/ confinamento (kg)</div><div class="val" id="f-fab">—</div><div class="delta muted">Adaptação + Terminação</div></div>
-      <div class="card kpi"><div class="lab">Fornecido nos tratos (kg)</div><div class="val" id="f-forn">—</div><div class="delta muted">total realizado</div></div>
-      <div class="card kpi"><div class="lab">Diferença fornecido − fabricado</div><div class="val" id="f-dif">—</div><div class="delta" id="f-dif-d">—</div></div>
-      <div class="card kpi"><div class="lab">Fabricado total na fábrica (kg)</div><div class="val" id="f-tot">—</div><div class="delta muted">inclui premix e ração pasto</div></div>
+    <div class="kpis" style="grid-template-columns: repeat(4, 1fr); margin-bottom:0.7rem">
+      <div class="card kpi" id="kpi-ffab"><div class="lab">Fabricado p/ confinamento (kg)</div><div class="val sm" id="f-fab">—</div><div class="delta muted">Adaptação + Terminação</div></div>
+      <div class="card kpi" id="kpi-fforn"><div class="lab">Fornecido nos tratos (kg)</div><div class="val sm" id="f-forn">—</div><div class="delta muted">total realizado no dia</div></div>
+      <div class="card kpi" id="kpi-fdif"><div class="lab">Fornecido − fabricado</div><div class="val sm" id="f-dif">—</div><div class="delta" id="f-dif-d">—</div></div>
+      <div class="card kpi" id="kpi-ftot"><div class="lab">Fabricado total na fábrica (kg)</div><div class="val sm" id="f-tot">—</div><div class="delta muted">inclui premix e ração de pasto</div></div>
     </div>
-    <div class="grid g11">
+    <div class="grid" style="grid-template-columns: 1fr 1fr; flex:1; min-height:0; margin-bottom:0.6rem" id="fab-grid">
       <div class="card"><h2>Histórico de batidas (dia × dia anterior)</h2><p class="note">Batidas, quilos e cabeças por ração. Operador de carregamento: não consta no relatório.</p>
-        <table><thead><tr><th>Ração</th><th class="n">Batidas</th><th class="n">kg</th><th class="n">Cab</th><th class="n">kg/cab</th><th class="n">Bat. ant.</th><th class="n">kg ant.</th></tr></thead><tbody id="rac-body"></tbody></table></div>
-      <div class="card"><h2>Eficiência de fabricação — desvio por ingrediente (%)</h2><p class="note">Realizado em relação ao previsto na fórmula. Faixa ±3% normal, ±10% grave.</p><div class="chart" id="ing-chart"></div></div>
+        <div class="scroll"><table><thead><tr><th>Ração</th><th class="n">Batidas</th><th class="n">kg</th><th class="n">Cab</th><th class="n">kg/cab</th><th class="n">Bat. ant.</th><th class="n">kg ant.</th></tr></thead><tbody id="rac-body"></tbody></table></div></div>
+      <div class="card"><h2>Eficiência de fabricação — desvio por ingrediente (%)</h2><p class="note">Realizado em relação ao previsto na fórmula. Faixa ±3% normal; ±10% grave.</p><div class="chart" id="ing-chart"></div></div>
     </div>
   </section>
 
+  <!-- 5. TRATO -->
   <section class="page" data-page="trato">
-    <div class="grid g32">
-      <div class="card"><h2>Eficiência de fornecimento por curral (kg no dia)</h2><p class="note">Soma dos tratos do curral: realizado × previsto. Fora de ±10% em vermelho.</p>
-        <div class="legend"><span><i style="background:#c9c9c4"></i>Previsto</span><span><i style="background:#2f6fb5"></i>Realizado</span><span><i style="background:#c0262d"></i>Fora de ±10%</span></div>
+    <div class="grid" style="grid-template-columns: 3fr 2fr; flex:1; min-height:0; margin-bottom:0.6rem">
+      <div class="card"><h2>Eficiência de fornecimento por curral (kg no dia)</h2>
+        <div class="legend"><span><i style="background:#cfd0c6"></i>Previsto</span><span><i style="background:var(--ok)"></i>Realizado dentro de ±10%</span><span><i style="background:var(--at-f)"></i>Fora de ±10%</span><span><i style="background:var(--gr)"></i>Fornecido zero</span></div>
         <div class="chart" id="cur-chart"></div></div>
-      <div style="display:flex;flex-direction:column;gap:0.7rem;min-height:0">
-        <div class="card"><h2>Desempenho de distribuição por tratador</h2><p class="note">Tratos lançados, zerados e quilos.</p>
+      <div style="display:flex; flex-direction:column; gap:0.7rem; min-height:0">
+        <div class="card"><h2>Desempenho por tratador</h2><p class="note">Tratos lançados, zerados e quilos distribuídos.</p>
           <table><thead><tr><th>Tratador</th><th class="n">Tratos</th><th class="n">Zerados</th><th class="n">kg real.</th><th class="n">kg prev.</th><th class="n">Δ %</th></tr></thead><tbody id="trd-body"></tbody></table></div>
-        <div class="card"><h2>Currais com ração do dia num único trato</h2><p class="note">Demais tratos do curral lançados com zero.</p><div id="ut" style="font-size:1rem">—</div></div>
+        <div class="card" style="flex:1; min-height:0"><h2>Maiores desvios de fornecimento</h2><p class="note">Currais fora de ±10% no total do dia (previsto × realizado).</p>
+          <div class="scroll"><table><thead><tr><th>Curral</th><th>Lote</th><th class="n">Previsto</th><th class="n">Realizado</th><th class="n">Δ %</th></tr></thead><tbody id="dv-body"></tbody></table></div></div>
+        <div class="card"><h2>Currais com toda a ração num único trato</h2><div id="ut" style="font-size:0.95rem"></div></div>
+        <div class="card"><h2>Horários do 1º e do último trato</h2><p class="na" style="margin:0.2rem 0 0">Não constam nos relatórios Sentinela — solicitado ao suporte TGC.</p></div>
       </div>
     </div>
   </section>
 
-  <section class="page" data-page="lotes">
-    <div class="card" style="flex:1;min-height:0"><h2>Lotes — rebanho, consumo e abate</h2><p class="note">Δ cab vs dia anterior · MS dia em kg/cab · Var. vs MS do dia anterior · Atraso após a data de abate prevista.</p>
-      <div class="scroll"><table class="lotes"><thead><tr><th>Curral</th><th>Lote</th><th>Rebanho</th><th class="n">Cab</th><th class="n">Δ</th><th class="n">Dias</th><th>Ração</th><th class="n">d.ração</th><th class="n">MS dia</th><th class="n">MS −1</th><th class="n">Var.</th><th class="n">IMS %PV</th><th class="n">Peso prj.</th><th>Abate</th><th class="n">Atraso</th><th class="n">Forn. kg</th><th class="n">Forn. Δ%</th></tr></thead><tbody id="lot-body"></tbody></table></div></div>
-  </section>
-
-  <div class="foot"><span>Fonte: relatórios diários Sentinela do TGC (Zootécnico, Análise de Batida, Eficiência de Trato). Limiares: consumo ±10%, ingrediente ±3% (grave ±10%), curral ±10%, fabricado × fornecido ±5%.</span><span id="upd"></span></div>
+  <div class="foot"><span>Fonte: relatórios diários Sentinela do TGC (Zootécnico, Análise de Batida, Eficiência de Trato). Limiares: consumo ±10% · ingrediente ±3% (grave ±10%) · curral ±10% · fabricado × fornecido ±5%.</span><span id="upd"></span></div>
 </div>
 
 <script>
-var DATA_EMBUTIDA = {"resumo": [{"data_referencia": "10/10/2026", "data_anterior": "09/10/2026", "gerado_em": "10/10/2026 21:01:10", "rel_zootecnico": "sim", "rel_batida": "não", "rel_trato": "sim", "cab": 2253, "cab_ant": 2449, "dif_cab": -196, "lotes": 24, "cab_consumo": 2253, "ms_dia": 10.7, "ms_1": 10.48, "ms_5": 10.48, "ims_pv": 2.19, "mn_dia": 21.42, "fabricado_kg": null, "fornecido_kg": null, "dif_fab_forn_kg": null, "dif_fab_forn_pct": null, "fabricado_total_kg": null, "trato_previsto": 52742.73, "trato_realizado": 48266.0, "trato_dif_pct": -8.49, "currais_um_trato": 4, "lotes_abate_vencidos": 7, "cab_abate_vencidos": 728, "lotes_abate_7d": 0, "n_grave": 2, "n_atencao": 10, "n_info": 5, "horario_primeiro_trato": null, "horario_ultimo_trato": null, "lotes_novos": 0, "lotes_saidos": 4, "lotes_alterados": 1, "mudancas_dieta": 1}], "atencao": [{"id": 1, "nivel": "grave", "bloco": "Fontes", "titulo": "Relatório Análise de Batida não disponível para 10/10/2026", "detalhe": "O Sentinela não enviou (ou o arquivo não foi arquivado). Indicadores dependentes ficam em branco.", "fonte": "e-mail Sentinela"}, {"id": 2, "nivel": "grave", "bloco": "Consumo", "titulo": "E-04 lote 10776 (14 cab): consumo de MS 0.04 kg/cab no dia", "detalhe": "Consumo praticamente zero com animais alojados — trato não lançado ou lote vazio.", "fonte": "Zootécnico D — Consumo do dia (Seca)"}, {"id": 3, "nivel": "atencao", "bloco": "Consumo", "titulo": "C-04 lote 10756: MS/cab 11.09 → 13.35 kg (+20%)", "detalhe": "Variação de consumo acima de 10% em relação ao dia anterior.", "fonte": "Zootécnico D — MS-1 vs Consumo do dia"}, {"id": 4, "nivel": "atencao", "bloco": "Abate", "titulo": "7 lotes (728 cab) com data de abate prevista já vencida", "detalhe": "Mais atrasado: P-09 (112 d), F-04 (106 d), E-04 (90 d), C-09 (71 d).", "fonte": "Zootécnico D — Dt. Abate"}, {"id": 5, "nivel": "atencao", "bloco": "Trato", "titulo": "C-15 (lote 10768): fornecido 1505 kg × previsto 1071 kg (+41%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 6, "nivel": "atencao", "bloco": "Trato", "titulo": "F-04 (lote 10736): fornecido 1870 kg × previsto 1306 kg (+43%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 7, "nivel": "atencao", "bloco": "Trato", "titulo": "F-05 (lote 10719): fornecido 1100 kg × previsto 751 kg (+47%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 8, "nivel": "atencao", "bloco": "Trato", "titulo": "G-02 (lote 10498): fornecido 0 kg × previsto 323 kg (-100%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 9, "nivel": "atencao", "bloco": "Trato", "titulo": "G-04 (lote 10777): fornecido 0 kg × previsto 1197 kg (-100%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 10, "nivel": "atencao", "bloco": "Trato", "titulo": "G-05 (lote 10731): fornecido 0 kg × previsto 710 kg (-100%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 11, "nivel": "atencao", "bloco": "Trato", "titulo": "G-06 (lote 10722): fornecido 0 kg × previsto 1061 kg (-100%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 12, "nivel": "atencao", "bloco": "Trato", "titulo": "4 currais com toda a ração do dia lançada num único trato (demais tratos zerados)", "detalhe": "P-05, P-09, P-10, P-11. Pode ser lançamento consolidado em vez de trato a trato.", "fonte": "Eficiência de Trato D"}, {"id": 13, "nivel": "info", "bloco": "Rebanho", "titulo": "Lote 10498 (G-02, BOITEL RENATO NAKAIA, 23 cab) saiu do relatório", "detalhe": "Conferir registro de saída (vídeo/GTA) ou ausência de consumo.", "fonte": "Zootécnico D-1"}, {"id": 14, "nivel": "info", "bloco": "Rebanho", "titulo": "Lote 10722 (G-06, ELISABETA RAFFAELLI, 65 cab) saiu do relatório", "detalhe": "Conferir registro de saída (vídeo/GTA) ou ausência de consumo.", "fonte": "Zootécnico D-1"}, {"id": 15, "nivel": "info", "bloco": "Rebanho", "titulo": "Lote 10731 (G-05, PRÓPRIO, 28 cab) saiu do relatório", "detalhe": "Conferir registro de saída (vídeo/GTA) ou ausência de consumo.", "fonte": "Zootécnico D-1"}, {"id": 16, "nivel": "info", "bloco": "Rebanho", "titulo": "Lote 10777 (G-04, BOITEL-ADEMIR FALCADE, 80 cab) saiu do relatório", "detalhe": "Conferir registro de saída (vídeo/GTA) ou ausência de consumo.", "fonte": "Zootécnico D-1"}, {"id": 17, "nivel": "info", "bloco": "Dieta", "titulo": "C-06 lote 10782: mudou para TERMINAÇÃO 260714 TRULAND (antes ADAPTAÇÃO 260714 TRULAND)", "detalhe": "Troca de dieta registrada.", "fonte": "Zootécnico"}], "lotes": [{"curral": "A-02", "lote": "10791", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 109, "cab_ant": 109, "dif_cab": 0, "dt_entrada": "06/10/26", "dias": 5, "racao": "ADAPTAÇÃO", "racao_dias": 5, "ms_dia": 5.87, "ms_1": 5.89, "ms_5": 4.53, "var_vs_1_pct": -0.3, "ims_pv": 1.68, "mn_dia": 12.71, "peso_entrada": 342.0, "peso_prj": 349.0, "dt_abate": "14/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 0.0, "forn_previsto": 1385.0, "forn_realizado": 1385.0, "forn_dif_pct": 0.0, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "A-03", "lote": "10787", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 100, "cab_ant": 100, "dif_cab": 0, "dt_entrada": "03/10/26", "dias": 8, "racao": "ADAPTAÇÃO", "racao_dias": 8, "ms_dia": 10.69, "ms_1": 10.8, "ms_5": 10.34, "var_vs_1_pct": -1.0, "ims_pv": 2.03, "mn_dia": 23.2, "peso_entrada": 515.6, "peso_prj": 527.6, "dt_abate": "11/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2330.0, "forn_realizado": 2320.0, "forn_dif_pct": -0.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "A-04", "lote": "10794", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 100, "cab_ant": 100, "dif_cab": 0, "dt_entrada": "08/10/26", "dias": 3, "racao": "ADAPTAÇÃO", "racao_dias": 3, "ms_dia": 5.19, "ms_1": 5.21, "ms_5": 4.4, "var_vs_1_pct": -0.4, "ims_pv": 1.17, "mn_dia": 11.25, "peso_entrada": 438.4, "peso_prj": 442.6, "dt_abate": "16/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 0.0, "leitura_3": 0.0, "forn_previsto": 1125.0, "forn_realizado": 1125.0, "forn_dif_pct": 0.0, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "A-05", "lote": "10788", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 123, "cab_ant": 123, "dif_cab": 0, "dt_entrada": "04/10/26", "dias": 7, "racao": "ADAPTAÇÃO", "racao_dias": 7, "ms_dia": 7.91, "ms_1": 7.84, "ms_5": 7.33, "var_vs_1_pct": 0.9, "ims_pv": 1.85, "mn_dia": 17.15, "peso_entrada": 417.72, "peso_prj": 428.22, "dt_abate": "12/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2080.0, "forn_realizado": 2110.0, "forn_dif_pct": 1.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "A-06", "lote": "10792", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 92, "cab_ant": 92, "dif_cab": 0, "dt_entrada": "06/10/26", "dias": 5, "racao": "ADAPTAÇÃO", "racao_dias": 5, "ms_dia": 7.34, "ms_1": 7.3, "ms_5": 5.27, "var_vs_1_pct": 0.5, "ims_pv": 1.68, "mn_dia": 15.87, "peso_entrada": 429.8, "peso_prj": 436.8, "dt_abate": "14/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1450.0, "forn_realizado": 1460.0, "forn_dif_pct": 0.7, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "B-15", "lote": "10754", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 90, "cab_ant": 90, "dif_cab": 0, "dt_entrada": "28/07/26", "dias": 75, "racao": "TERMINAÇÃO", "racao_dias": 51, "ms_dia": 11.75, "ms_1": 11.67, "ms_5": 12.09, "var_vs_1_pct": 0.7, "ims_pv": 2.52, "mn_dia": 22.72, "peso_entrada": 354.26, "peso_prj": 466.76, "dt_abate": "05/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2037.0, "forn_realizado": 2045.0, "forn_dif_pct": 0.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "B-14", "lote": "10755", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 90, "cab_ant": 90, "dif_cab": 0, "dt_entrada": "26/07/26", "dias": 77, "racao": "TERMINAÇÃO", "racao_dias": 51, "ms_dia": 12.67, "ms_1": 12.67, "ms_5": 13.42, "var_vs_1_pct": 0.0, "ims_pv": 2.76, "mn_dia": 24.5, "peso_entrada": 343.0, "peso_prj": 458.5, "dt_abate": "03/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2212.0, "forn_realizado": 2205.0, "forn_dif_pct": -0.3, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-01", "lote": "10784", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 77, "cab_ant": 77, "dif_cab": 0, "dt_entrada": "18/08/26", "dias": 54, "racao": "ADAPTAÇÃO", "racao_dias": 16, "ms_dia": 18.29, "ms_1": 17.76, "ms_5": 17.1, "var_vs_1_pct": 3.0, "ims_pv": 3.86, "mn_dia": 39.61, "peso_entrada": 392.91, "peso_prj": 473.91, "dt_abate": "26/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2950.0, "forn_realizado": 3050.0, "forn_dif_pct": 3.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-02", "lote": "10785", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 51, "cab_ant": 51, "dif_cab": 0, "dt_entrada": "23/08/26", "dias": 49, "racao": "ADAPTAÇÃO", "racao_dias": 16, "ms_dia": 11.73, "ms_1": 11.54, "ms_5": 11.58, "var_vs_1_pct": 1.6, "ims_pv": 2.92, "mn_dia": 25.39, "peso_entrada": 327.52, "peso_prj": 401.02, "dt_abate": "01/12/26", "atraso_abate_dias": null, "leitura_1": 1.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1238.0, "forn_realizado": 1295.0, "forn_dif_pct": 4.6, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-04", "lote": "10756", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 106, "cab_ant": 106, "dif_cab": 0, "dt_entrada": "01/08/26", "dias": 71, "racao": "TERMINAÇÃO", "racao_dias": 31, "ms_dia": 13.35, "ms_1": 11.09, "ms_5": 13.04, "var_vs_1_pct": 20.4, "ims_pv": 3.16, "mn_dia": 25.8, "peso_entrada": 316.63, "peso_prj": 423.13, "dt_abate": "09/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2697.0, "forn_realizado": 2735.0, "forn_dif_pct": 1.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-05", "lote": "10753", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 47, "cab_ant": 47, "dif_cab": 0, "dt_entrada": "26/07/26", "dias": 77, "racao": "TERMINAÇÃO", "racao_dias": 50, "ms_dia": 13.99, "ms_1": 13.57, "ms_5": 14.34, "var_vs_1_pct": 3.1, "ims_pv": 2.41, "mn_dia": 27.13, "peso_entrada": 465.97, "peso_prj": 581.47, "dt_abate": "03/11/26", "atraso_abate_dias": null, "leitura_1": 1.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1206.0, "forn_realizado": 1275.0, "forn_dif_pct": 5.7, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-06", "lote": "10782", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 111, "cab_ant": 111, "dif_cab": 0, "dt_entrada": "20/09/26", "dias": 21, "racao": "TERMINAÇÃO", "racao_dias": 2, "ms_dia": 14.42, "ms_1": 13.52, "ms_5": 13.08, "var_vs_1_pct": 6.7, "ims_pv": 2.71, "mn_dia": 28.83, "peso_entrada": 500.0, "peso_prj": 531.5, "dt_abate": "29/12/26", "atraso_abate_dias": null, "leitura_1": 0.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 3218.0, "forn_realizado": 3200.0, "forn_dif_pct": -0.6, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-07", "lote": "10781", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 96, "cab_ant": 96, "dif_cab": 0, "dt_entrada": "15/09/26", "dias": 26, "racao": "TERMINAÇÃO", "racao_dias": 7, "ms_dia": 13.69, "ms_1": 13.4, "ms_5": 14.19, "var_vs_1_pct": 2.2, "ims_pv": 2.5, "mn_dia": 26.41, "peso_entrada": 511.87, "peso_prj": 548.27, "dt_abate": "24/12/26", "atraso_abate_dias": null, "leitura_1": 0.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2557.0, "forn_realizado": 2535.0, "forn_dif_pct": -0.9, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-08", "lote": "10780", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 105, "cab_ant": 105, "dif_cab": 0, "dt_entrada": "15/09/26", "dias": 26, "racao": "TERMINAÇÃO", "racao_dias": 7, "ms_dia": 12.74, "ms_1": 12.38, "ms_5": 13.14, "var_vs_1_pct": 2.9, "ims_pv": 2.52, "mn_dia": 24.57, "peso_entrada": 468.89, "peso_prj": 505.29, "dt_abate": "24/12/26", "atraso_abate_dias": null, "leitura_1": 0.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2584.0, "forn_realizado": 2580.0, "forn_dif_pct": -0.2, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-09", "lote": "10739", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 64, "cab_ant": 64, "dif_cab": 0, "dt_entrada": "22/04/26", "dias": 172, "racao": "ADAPTAÇÃO", "racao_dias": 87, "ms_dia": 9.71, "ms_1": 9.6, "ms_5": 9.54, "var_vs_1_pct": 1.1, "ims_pv": 2.0, "mn_dia": 21.01, "peso_entrada": 226.43, "peso_prj": 484.43, "dt_abate": "31/07/26", "atraso_abate_dias": 71, "leitura_1": 0.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1359.0, "forn_realizado": 1345.0, "forn_dif_pct": -1.0, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-14", "lote": "10752", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 86, "cab_ant": 86, "dif_cab": 0, "dt_entrada": "06/08/26", "dias": 66, "racao": "TERMINAÇÃO", "racao_dias": 44, "ms_dia": 12.53, "ms_1": 12.59, "ms_5": 13.47, "var_vs_1_pct": -0.5, "ims_pv": 2.31, "mn_dia": 24.24, "peso_entrada": 443.12, "peso_prj": 542.12, "dt_abate": "14/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2100.0, "forn_realizado": 2085.0, "forn_dif_pct": -0.7, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-15", "lote": "10768", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 67, "cab_ant": 67, "dif_cab": 0, "dt_entrada": "09/08/26", "dias": 63, "racao": "TERMINAÇÃO", "racao_dias": 40, "ms_dia": 11.58, "ms_1": 11.77, "ms_5": 11.86, "var_vs_1_pct": -1.6, "ims_pv": 2.31, "mn_dia": 22.46, "peso_entrada": 413.98, "peso_prj": 502.18, "dt_abate": "17/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1071.0, "forn_realizado": 1505.0, "forn_dif_pct": 40.5, "tratos": 1, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "E-04", "lote": "10776", "rebanho": "PRÓPRIO", "ct": "BI", "cab": 14, "cab_ant": 14, "dif_cab": 0, "dt_entrada": "03/04/26", "dias": 191, "racao": "TERMINAÇÃO", "racao_dias": 20, "ms_dia": 0.04, "ms_1": 0.1, "ms_5": 0.04, "var_vs_1_pct": -60.0, "ims_pv": 0.01, "mn_dia": 0.07, "peso_entrada": 362.28, "peso_prj": 648.78, "dt_abate": "12/07/26", "atraso_abate_dias": 90, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1.0, "forn_realizado": 1.0, "forn_dif_pct": -28.6, "tratos": 1, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "F-04", "lote": "10736", "rebanho": "PRÓPRIO", "ct": "MC", "cab": 82, "cab_ant": 82, "dif_cab": 0, "dt_entrada": "18/03/26", "dias": 207, "racao": "TERMINAÇÃO", "racao_dias": 87, "ms_dia": 11.76, "ms_1": 11.73, "ms_5": 11.49, "var_vs_1_pct": 0.3, "ims_pv": 1.93, "mn_dia": 22.8, "peso_entrada": 300.29, "peso_prj": 610.79, "dt_abate": "26/06/26", "atraso_abate_dias": 106, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1306.0, "forn_realizado": 1870.0, "forn_dif_pct": 43.2, "tratos": 1, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "F-05", "lote": "10719", "rebanho": "PRÓPRIO", "ct": "MC", "cab": 88, "cab_ant": 88, "dif_cab": 0, "dt_entrada": "07/05/26", "dias": 157, "racao": "TERMINAÇÃO", "racao_dias": 87, "ms_dia": 6.44, "ms_1": 6.44, "ms_5": 8.85, "var_vs_1_pct": 0.0, "ims_pv": 1.08, "mn_dia": 12.5, "peso_entrada": 363.37, "peso_prj": 598.87, "dt_abate": "15/08/26", "atraso_abate_dias": 56, "leitura_1": 1.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 751.0, "forn_realizado": 1100.0, "forn_dif_pct": 46.5, "tratos": 1, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "P-05", "lote": "10793", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 75, "cab_ant": 75, "dif_cab": 0, "dt_entrada": "08/10/26", "dias": 3, "racao": "ADAPTAÇÃO", "racao_dias": 3, "ms_dia": 5.12, "ms_1": 5.56, "ms_5": 4.07, "var_vs_1_pct": -7.9, "ims_pv": 1.44, "mn_dia": 11.13, "peso_entrada": 350.0, "peso_prj": 354.5, "dt_abate": "16/01/27", "atraso_abate_dias": null, "leitura_1": 2.0, "leitura_2": 1.0, "leitura_3": 0.0, "forn_previsto": 855.0, "forn_realizado": 835.0, "forn_dif_pct": -2.3, "tratos": 2, "tratos_zerados": 1, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "P-09", "lote": "10709", "rebanho": "PRÓPRIO", "ct": "MC", "cab": 173, "cab_ant": 173, "dif_cab": 0, "dt_entrada": "12/03/26", "dias": 213, "racao": "TERMINAÇÃO", "racao_dias": 18, "ms_dia": 11.21, "ms_1": 11.09, "ms_5": 11.09, "var_vs_1_pct": 1.1, "ims_pv": 2.07, "mn_dia": 21.56, "peso_entrada": 222.19, "peso_prj": 541.69, "dt_abate": "20/06/26", "atraso_abate_dias": 112, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 2.0, "forn_previsto": 3721.0, "forn_realizado": 3730.0, "forn_dif_pct": 0.2, "tratos": 2, "tratos_zerados": 1, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "P-10", "lote": "10705", "rebanho": "PRÓPRIO", "ct": "MC", "cab": 205, "cab_ant": 205, "dif_cab": 0, "dt_entrada": "13/05/26", "dias": 151, "racao": "TERMINAÇÃO", "racao_dias": 18, "ms_dia": 10.68, "ms_1": 10.56, "ms_5": 10.06, "var_vs_1_pct": 1.1, "ims_pv": 2.27, "mn_dia": 20.54, "peso_entrada": 244.35, "peso_prj": 470.85, "dt_abate": "21/08/26", "atraso_abate_dias": 50, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 4199.0, "forn_realizado": 4210.0, "forn_dif_pct": 0.3, "tratos": 2, "tratos_zerados": 1, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "P-11", "lote": "10744", "rebanho": "PRÓPRIO", "ct": "MM", "cab": 102, "cab_ant": 102, "dif_cab": 0, "dt_entrada": "27/06/26", "dias": 106, "racao": "TERMINAÇÃO", "racao_dias": 61, "ms_dia": 11.55, "ms_1": 11.46, "ms_5": 12.19, "var_vs_1_pct": 0.8, "ims_pv": 2.09, "mn_dia": 22.21, "peso_entrada": 404.93, "peso_prj": 553.33, "dt_abate": "05/10/26", "atraso_abate_dias": 5, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2268.0, "forn_realizado": 2265.0, "forn_dif_pct": -0.1, "tratos": 2, "tratos_zerados": 1, "tratadores": "GEAZI SILVA FELIX"}], "proprietarios": [{"rebanho": "BOITEL- DIRCEU", "cab": 1589, "lotes": 18, "cab_ant": 1589, "dif_cab": 0}, {"rebanho": "PRÓPRIO", "cab": 664, "lotes": 6, "cab_ant": 692, "dif_cab": -28}], "fabrica_racoes": [], "fabrica_ingredientes": [], "tratadores": [{"tratador": "GEAZI SILVA FELIX", "tratos": 48, "tratos_zerados": 8, "previsto": 49991.0, "realizado": 48266.0, "dif_pct": -3.5, "desvio_medio_abs_pct": 65.1, "currais": 28}], "tratos": [{"chave": "A-02-1", "curral": "A-02", "lote": "10791", "n_trato": 1, "previsto": 415.5, "realizado": 685.0, "dif_kg": 269.5, "dif_pct": 64.86, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-02-2", "curral": "A-02", "lote": "10791", "n_trato": 2, "previsto": 969.5, "realizado": 700.0, "dif_kg": -269.5, "dif_pct": -27.8, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-03-1", "curral": "A-03", "lote": "10787", "n_trato": 1, "previsto": 699.0, "realizado": 1720.0, "dif_kg": 1021.0, "dif_pct": 146.07, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-03-2", "curral": "A-03", "lote": "10787", "n_trato": 2, "previsto": 1631.0, "realizado": 600.0, "dif_kg": -1031.0, "dif_pct": -63.21, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-04-1", "curral": "A-04", "lote": "10794", "n_trato": 1, "previsto": 337.5, "realizado": 625.0, "dif_kg": 287.5, "dif_pct": 85.19, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-04-2", "curral": "A-04", "lote": "10794", "n_trato": 2, "previsto": 787.5, "realizado": 500.0, "dif_kg": -287.5, "dif_pct": -36.51, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-05-1", "curral": "A-05", "lote": "10788", "n_trato": 1, "previsto": 624.0, "realizado": 1310.0, "dif_kg": 686.0, "dif_pct": 109.94, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-05-2", "curral": "A-05", "lote": "10788", "n_trato": 2, "previsto": 1456.0, "realizado": 800.0, "dif_kg": -656.0, "dif_pct": -45.05, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-06-1", "curral": "A-06", "lote": "10792", "n_trato": 1, "previsto": 435.0, "realizado": 460.0, "dif_kg": 25.0, "dif_pct": 5.75, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-06-2", "curral": "A-06", "lote": "10792", "n_trato": 2, "previsto": 1015.0, "realizado": 1000.0, "dif_kg": -15.0, "dif_pct": -1.48, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "B-14-1", "curral": "B-14", "lote": "10755", "n_trato": 1, "previsto": 663.6, "realizado": 705.0, "dif_kg": 41.4, "dif_pct": 6.24, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "B-14-2", "curral": "B-14", "lote": "10755", "n_trato": 2, "previsto": 1548.4, "realizado": 1500.0, "dif_kg": -48.4, "dif_pct": -3.13, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "B-15-1", "curral": "B-15", "lote": "10754", "n_trato": 1, "previsto": 611.1, "realizado": 645.0, "dif_kg": 33.9, "dif_pct": 5.55, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "B-15-2", "curral": "B-15", "lote": "10754", "n_trato": 2, "previsto": 1425.9, "realizado": 1400.0, "dif_kg": -25.9, "dif_pct": -1.82, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-01-1", "curral": "C-01", "lote": "10784", "n_trato": 1, "previsto": 885.0, "realizado": 1410.0, "dif_kg": 525.0, "dif_pct": 59.32, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-01-2", "curral": "C-01", "lote": "10784", "n_trato": 2, "previsto": 2065.0, "realizado": 1640.0, "dif_kg": -425.0, "dif_pct": -20.58, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-02-1", "curral": "C-02", "lote": "10785", "n_trato": 1, "previsto": 371.48, "realizado": 595.0, "dif_kg": 223.53, "dif_pct": 60.17, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-02-2", "curral": "C-02", "lote": "10785", "n_trato": 2, "previsto": 866.77, "realizado": 700.0, "dif_kg": -166.78, "dif_pct": -19.24, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-04-1", "curral": "C-04", "lote": "10756", "n_trato": 1, "previsto": 809.03, "realizado": 1235.0, "dif_kg": 425.97, "dif_pct": 52.65, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-04-2", "curral": "C-04", "lote": "10756", "n_trato": 2, "previsto": 1887.73, "realizado": 1500.0, "dif_kg": -387.73, "dif_pct": -20.54, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-05-1", "curral": "C-05", "lote": "10753", "n_trato": 1, "previsto": 361.82, "realizado": 45.0, "dif_kg": -316.82, "dif_pct": -87.56, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-05-2", "curral": "C-05", "lote": "10753", "n_trato": 2, "previsto": 844.25, "realizado": 1230.0, "dif_kg": 385.75, "dif_pct": 45.69, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-06-1", "curral": "C-06", "lote": "10782", "n_trato": 1, "previsto": 894.96, "realizado": 2070.0, "dif_kg": 1175.04, "dif_pct": 131.3, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-06-2", "curral": "C-06", "lote": "10782", "n_trato": 2, "previsto": 2323.26, "realizado": 1130.0, "dif_kg": -1193.27, "dif_pct": -51.36, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-07-1", "curral": "C-07", "lote": "10781", "n_trato": 1, "previsto": 767.21, "realizado": 1565.0, "dif_kg": 797.79, "dif_pct": 103.99, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-07-2", "curral": "C-07", "lote": "10781", "n_trato": 2, "previsto": 1790.16, "realizado": 970.0, "dif_kg": -820.16, "dif_pct": -45.81, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-08-1", "curral": "C-08", "lote": "10780", "n_trato": 1, "previsto": 775.21, "realizado": 1680.0, "dif_kg": 904.79, "dif_pct": 116.72, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-08-2", "curral": "C-08", "lote": "10780", "n_trato": 2, "previsto": 1808.82, "realizado": 900.0, "dif_kg": -908.82, "dif_pct": -50.24, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-09-1", "curral": "C-09", "lote": "10739", "n_trato": 1, "previsto": 407.75, "realizado": 545.0, "dif_kg": 137.25, "dif_pct": 33.66, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-09-2", "curral": "C-09", "lote": "10739", "n_trato": 2, "previsto": 951.4, "realizado": 800.0, "dif_kg": -151.41, "dif_pct": -15.91, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-14-1", "curral": "C-14", "lote": "10752", "n_trato": 1, "previsto": 630.0, "realizado": 635.0, "dif_kg": 5.0, "dif_pct": 0.79, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-14-2", "curral": "C-14", "lote": "10752", "n_trato": 2, "previsto": 1470.0, "realizado": 1450.0, "dif_kg": -20.0, "dif_pct": -1.36, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-15-1", "curral": "C-15", "lote": "10768", "n_trato": 1, "previsto": 1071.0, "realizado": 1505.0, "dif_kg": 434.0, "dif_pct": 40.52, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "E-04-1", "curral": "E-04", "lote": "10776", "n_trato": 1, "previsto": 1.4, "realizado": 1.0, "dif_kg": -0.4, "dif_pct": -28.57, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "F-04-1", "curral": "F-04", "lote": "10736", "n_trato": 1, "previsto": 1305.5, "realizado": 1870.0, "dif_kg": 564.5, "dif_pct": 43.24, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "F-05-1", "curral": "F-05", "lote": "10719", "n_trato": 1, "previsto": 750.75, "realizado": 1100.0, "dif_kg": 349.25, "dif_pct": 46.52, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "G-02-1", "curral": "G-02", "lote": "10498", "n_trato": 1, "previsto": 322.88, "realizado": 0.0, "dif_kg": -322.88, "dif_pct": -100.0, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "G-04-1", "curral": "G-04", "lote": "10777", "n_trato": 1, "previsto": 1197.0, "realizado": 0.0, "dif_kg": -1197.0, "dif_pct": -100.0, "leitura": 2.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "G-05-1", "curral": "G-05", "lote": "10731", "n_trato": 1, "previsto": 709.8, "realizado": 0.0, "dif_kg": -709.8, "dif_pct": -100.0, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "G-06-1", "curral": "G-06", "lote": "10722", "n_trato": 1, "previsto": 1061.29, "realizado": 0.0, "dif_kg": -1061.29, "dif_pct": -100.0, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-05-1", "curral": "P-05", "lote": "10793", "n_trato": 1, "previsto": 256.5, "realizado": 835.0, "dif_kg": 578.5, "dif_pct": 225.54, "leitura": 2.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-05-2", "curral": "P-05", "lote": "10793", "n_trato": 2, "previsto": 598.5, "realizado": 0.0, "dif_kg": -598.5, "dif_pct": -100.0, "leitura": 2.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-09-1", "curral": "P-09", "lote": "10709", "n_trato": 1, "previsto": 1116.3, "realizado": 3730.0, "dif_kg": 2613.7, "dif_pct": 234.14, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-09-2", "curral": "P-09", "lote": "10709", "n_trato": 2, "previsto": 2604.7, "realizado": 0.0, "dif_kg": -2604.7, "dif_pct": -100.0, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-10-1", "curral": "P-10", "lote": "10705", "n_trato": 1, "previsto": 1259.7, "realizado": 4210.0, "dif_kg": 2950.3, "dif_pct": 234.21, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-10-2", "curral": "P-10", "lote": "10705", "n_trato": 2, "previsto": 2939.3, "realizado": 0.0, "dif_kg": -2939.3, "dif_pct": -100.0, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-11-1", "curral": "P-11", "lote": "10744", "n_trato": 1, "previsto": 680.4, "realizado": 2265.0, "dif_kg": 1584.6, "dif_pct": 232.89, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-11-2", "curral": "P-11", "lote": "10744", "n_trato": 2, "previsto": 1587.6, "realizado": 0.0, "dif_kg": -1587.6, "dif_pct": -100.0, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}], "mudancas_dieta": [{"curral": "C-06", "lote": "10782", "racao": "TERMINAÇÃO", "racao_ant": "ADAPTAÇÃO", "racao_dias": 2.0, "dias_conf": 21.0}], "gerado_em": "11/10/2026 15:37"};
+var DATA_EMBUTIDA = {"resumo": [{"data_referencia": "10/10/2026", "data_anterior": "09/10/2026", "gerado_em": "10/10/2026 21:01:10", "rel_zootecnico": "sim", "rel_batida": "não", "rel_trato": "sim", "cab": 2253, "cab_ant": 2449, "dif_cab": -196, "lotes": 24, "cab_consumo": 2253, "ms_dia": 10.7, "ms_1": 10.48, "ms_5": 10.48, "ims_pv": 2.19, "mn_dia": 21.42, "fabricado_kg": null, "fornecido_kg": null, "dif_fab_forn_kg": null, "dif_fab_forn_pct": null, "fabricado_total_kg": null, "trato_previsto": 52742.73, "trato_realizado": 48266.0, "trato_dif_pct": -8.49, "currais_um_trato": 4, "lotes_abate_vencidos": 7, "cab_abate_vencidos": 728, "lotes_abate_7d": 0, "n_grave": 2, "n_atencao": 10, "n_info": 5, "horario_primeiro_trato": null, "horario_ultimo_trato": null, "lotes_novos": 0, "lotes_saidos": 4, "lotes_alterados": 1, "mudancas_dieta": 1}], "atencao": [{"id": 1, "nivel": "grave", "bloco": "Fontes", "titulo": "Relatório Análise de Batida não disponível para 10/10/2026", "detalhe": "O Sentinela não enviou (ou o arquivo não foi arquivado). Indicadores dependentes ficam em branco.", "fonte": "e-mail Sentinela"}, {"id": 2, "nivel": "grave", "bloco": "Consumo", "titulo": "E-04 lote 10776 (14 cab): consumo de MS 0.04 kg/cab no dia", "detalhe": "Consumo praticamente zero com animais alojados — trato não lançado ou lote vazio.", "fonte": "Zootécnico D — Consumo do dia (Seca)"}, {"id": 3, "nivel": "atencao", "bloco": "Consumo", "titulo": "C-04 lote 10756: MS/cab 11.09 → 13.35 kg (+20%)", "detalhe": "Variação de consumo acima de 10% em relação ao dia anterior.", "fonte": "Zootécnico D — MS-1 vs Consumo do dia"}, {"id": 4, "nivel": "atencao", "bloco": "Abate", "titulo": "7 lotes (728 cab) com data de abate prevista já vencida", "detalhe": "Mais atrasado: P-09 (112 d), F-04 (106 d), E-04 (90 d), C-09 (71 d).", "fonte": "Zootécnico D — Dt. Abate"}, {"id": 5, "nivel": "atencao", "bloco": "Trato", "titulo": "C-15 (lote 10768): fornecido 1505 kg × previsto 1071 kg (+41%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 6, "nivel": "atencao", "bloco": "Trato", "titulo": "F-04 (lote 10736): fornecido 1870 kg × previsto 1306 kg (+43%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 7, "nivel": "atencao", "bloco": "Trato", "titulo": "F-05 (lote 10719): fornecido 1100 kg × previsto 751 kg (+47%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 8, "nivel": "atencao", "bloco": "Trato", "titulo": "G-02 (lote 10498): fornecido 0 kg × previsto 323 kg (-100%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 9, "nivel": "atencao", "bloco": "Trato", "titulo": "G-04 (lote 10777): fornecido 0 kg × previsto 1197 kg (-100%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 10, "nivel": "atencao", "bloco": "Trato", "titulo": "G-05 (lote 10731): fornecido 0 kg × previsto 710 kg (-100%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 11, "nivel": "atencao", "bloco": "Trato", "titulo": "G-06 (lote 10722): fornecido 0 kg × previsto 1061 kg (-100%) no dia", "detalhe": "Desvio do fornecimento diário em relação ao previsto.", "fonte": "Eficiência de Trato D — soma dos tratos do curral"}, {"id": 12, "nivel": "atencao", "bloco": "Trato", "titulo": "4 currais com toda a ração do dia lançada num único trato (demais tratos zerados)", "detalhe": "P-05, P-09, P-10, P-11. Pode ser lançamento consolidado em vez de trato a trato.", "fonte": "Eficiência de Trato D"}, {"id": 13, "nivel": "info", "bloco": "Rebanho", "titulo": "Lote 10498 (G-02, BOITEL RENATO NAKAIA, 23 cab) saiu do relatório", "detalhe": "Conferir registro de saída (vídeo/GTA) ou ausência de consumo.", "fonte": "Zootécnico D-1"}, {"id": 14, "nivel": "info", "bloco": "Rebanho", "titulo": "Lote 10722 (G-06, ELISABETA RAFFAELLI, 65 cab) saiu do relatório", "detalhe": "Conferir registro de saída (vídeo/GTA) ou ausência de consumo.", "fonte": "Zootécnico D-1"}, {"id": 15, "nivel": "info", "bloco": "Rebanho", "titulo": "Lote 10731 (G-05, PRÓPRIO, 28 cab) saiu do relatório", "detalhe": "Conferir registro de saída (vídeo/GTA) ou ausência de consumo.", "fonte": "Zootécnico D-1"}, {"id": 16, "nivel": "info", "bloco": "Rebanho", "titulo": "Lote 10777 (G-04, BOITEL-ADEMIR FALCADE, 80 cab) saiu do relatório", "detalhe": "Conferir registro de saída (vídeo/GTA) ou ausência de consumo.", "fonte": "Zootécnico D-1"}, {"id": 17, "nivel": "info", "bloco": "Dieta", "titulo": "C-06 lote 10782: mudou para TERMINAÇÃO 260714 TRULAND (antes ADAPTAÇÃO 260714 TRULAND)", "detalhe": "Troca de dieta registrada.", "fonte": "Zootécnico"}], "lotes": [{"curral": "A-02", "lote": "10791", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 109, "cab_ant": 109, "dif_cab": 0, "dt_entrada": "06/10/26", "dias": 5, "racao": "ADAPTAÇÃO", "racao_dias": 5, "ms_dia": 5.87, "ms_1": 5.89, "ms_5": 4.53, "var_vs_1_pct": -0.3, "ims_pv": 1.68, "mn_dia": 12.71, "peso_entrada": 342.0, "peso_prj": 349.0, "dt_abate": "14/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 0.0, "forn_previsto": 1385.0, "forn_realizado": 1385.0, "forn_dif_pct": 0.0, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "A-03", "lote": "10787", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 100, "cab_ant": 100, "dif_cab": 0, "dt_entrada": "03/10/26", "dias": 8, "racao": "ADAPTAÇÃO", "racao_dias": 8, "ms_dia": 10.69, "ms_1": 10.8, "ms_5": 10.34, "var_vs_1_pct": -1.0, "ims_pv": 2.03, "mn_dia": 23.2, "peso_entrada": 515.6, "peso_prj": 527.6, "dt_abate": "11/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2330.0, "forn_realizado": 2320.0, "forn_dif_pct": -0.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "A-04", "lote": "10794", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 100, "cab_ant": 100, "dif_cab": 0, "dt_entrada": "08/10/26", "dias": 3, "racao": "ADAPTAÇÃO", "racao_dias": 3, "ms_dia": 5.19, "ms_1": 5.21, "ms_5": 4.4, "var_vs_1_pct": -0.4, "ims_pv": 1.17, "mn_dia": 11.25, "peso_entrada": 438.4, "peso_prj": 442.6, "dt_abate": "16/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 0.0, "leitura_3": 0.0, "forn_previsto": 1125.0, "forn_realizado": 1125.0, "forn_dif_pct": 0.0, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "A-05", "lote": "10788", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 123, "cab_ant": 123, "dif_cab": 0, "dt_entrada": "04/10/26", "dias": 7, "racao": "ADAPTAÇÃO", "racao_dias": 7, "ms_dia": 7.91, "ms_1": 7.84, "ms_5": 7.33, "var_vs_1_pct": 0.9, "ims_pv": 1.85, "mn_dia": 17.15, "peso_entrada": 417.72, "peso_prj": 428.22, "dt_abate": "12/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2080.0, "forn_realizado": 2110.0, "forn_dif_pct": 1.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "A-06", "lote": "10792", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 92, "cab_ant": 92, "dif_cab": 0, "dt_entrada": "06/10/26", "dias": 5, "racao": "ADAPTAÇÃO", "racao_dias": 5, "ms_dia": 7.34, "ms_1": 7.3, "ms_5": 5.27, "var_vs_1_pct": 0.5, "ims_pv": 1.68, "mn_dia": 15.87, "peso_entrada": 429.8, "peso_prj": 436.8, "dt_abate": "14/01/27", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1450.0, "forn_realizado": 1460.0, "forn_dif_pct": 0.7, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "B-15", "lote": "10754", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 90, "cab_ant": 90, "dif_cab": 0, "dt_entrada": "28/07/26", "dias": 75, "racao": "TERMINAÇÃO", "racao_dias": 51, "ms_dia": 11.75, "ms_1": 11.67, "ms_5": 12.09, "var_vs_1_pct": 0.7, "ims_pv": 2.52, "mn_dia": 22.72, "peso_entrada": 354.26, "peso_prj": 466.76, "dt_abate": "05/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2037.0, "forn_realizado": 2045.0, "forn_dif_pct": 0.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "B-14", "lote": "10755", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 90, "cab_ant": 90, "dif_cab": 0, "dt_entrada": "26/07/26", "dias": 77, "racao": "TERMINAÇÃO", "racao_dias": 51, "ms_dia": 12.67, "ms_1": 12.67, "ms_5": 13.42, "var_vs_1_pct": 0.0, "ims_pv": 2.76, "mn_dia": 24.5, "peso_entrada": 343.0, "peso_prj": 458.5, "dt_abate": "03/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2212.0, "forn_realizado": 2205.0, "forn_dif_pct": -0.3, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-01", "lote": "10784", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 77, "cab_ant": 77, "dif_cab": 0, "dt_entrada": "18/08/26", "dias": 54, "racao": "ADAPTAÇÃO", "racao_dias": 16, "ms_dia": 18.29, "ms_1": 17.76, "ms_5": 17.1, "var_vs_1_pct": 3.0, "ims_pv": 3.86, "mn_dia": 39.61, "peso_entrada": 392.91, "peso_prj": 473.91, "dt_abate": "26/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2950.0, "forn_realizado": 3050.0, "forn_dif_pct": 3.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-02", "lote": "10785", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 51, "cab_ant": 51, "dif_cab": 0, "dt_entrada": "23/08/26", "dias": 49, "racao": "ADAPTAÇÃO", "racao_dias": 16, "ms_dia": 11.73, "ms_1": 11.54, "ms_5": 11.58, "var_vs_1_pct": 1.6, "ims_pv": 2.92, "mn_dia": 25.39, "peso_entrada": 327.52, "peso_prj": 401.02, "dt_abate": "01/12/26", "atraso_abate_dias": null, "leitura_1": 1.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1238.0, "forn_realizado": 1295.0, "forn_dif_pct": 4.6, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-04", "lote": "10756", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 106, "cab_ant": 106, "dif_cab": 0, "dt_entrada": "01/08/26", "dias": 71, "racao": "TERMINAÇÃO", "racao_dias": 31, "ms_dia": 13.35, "ms_1": 11.09, "ms_5": 13.04, "var_vs_1_pct": 20.4, "ims_pv": 3.16, "mn_dia": 25.8, "peso_entrada": 316.63, "peso_prj": 423.13, "dt_abate": "09/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2697.0, "forn_realizado": 2735.0, "forn_dif_pct": 1.4, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-05", "lote": "10753", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 47, "cab_ant": 47, "dif_cab": 0, "dt_entrada": "26/07/26", "dias": 77, "racao": "TERMINAÇÃO", "racao_dias": 50, "ms_dia": 13.99, "ms_1": 13.57, "ms_5": 14.34, "var_vs_1_pct": 3.1, "ims_pv": 2.41, "mn_dia": 27.13, "peso_entrada": 465.97, "peso_prj": 581.47, "dt_abate": "03/11/26", "atraso_abate_dias": null, "leitura_1": 1.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1206.0, "forn_realizado": 1275.0, "forn_dif_pct": 5.7, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-06", "lote": "10782", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 111, "cab_ant": 111, "dif_cab": 0, "dt_entrada": "20/09/26", "dias": 21, "racao": "TERMINAÇÃO", "racao_dias": 2, "ms_dia": 14.42, "ms_1": 13.52, "ms_5": 13.08, "var_vs_1_pct": 6.7, "ims_pv": 2.71, "mn_dia": 28.83, "peso_entrada": 500.0, "peso_prj": 531.5, "dt_abate": "29/12/26", "atraso_abate_dias": null, "leitura_1": 0.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 3218.0, "forn_realizado": 3200.0, "forn_dif_pct": -0.6, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-07", "lote": "10781", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 96, "cab_ant": 96, "dif_cab": 0, "dt_entrada": "15/09/26", "dias": 26, "racao": "TERMINAÇÃO", "racao_dias": 7, "ms_dia": 13.69, "ms_1": 13.4, "ms_5": 14.19, "var_vs_1_pct": 2.2, "ims_pv": 2.5, "mn_dia": 26.41, "peso_entrada": 511.87, "peso_prj": 548.27, "dt_abate": "24/12/26", "atraso_abate_dias": null, "leitura_1": 0.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2557.0, "forn_realizado": 2535.0, "forn_dif_pct": -0.9, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-08", "lote": "10780", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 105, "cab_ant": 105, "dif_cab": 0, "dt_entrada": "15/09/26", "dias": 26, "racao": "TERMINAÇÃO", "racao_dias": 7, "ms_dia": 12.74, "ms_1": 12.38, "ms_5": 13.14, "var_vs_1_pct": 2.9, "ims_pv": 2.52, "mn_dia": 24.57, "peso_entrada": 468.89, "peso_prj": 505.29, "dt_abate": "24/12/26", "atraso_abate_dias": null, "leitura_1": 0.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2584.0, "forn_realizado": 2580.0, "forn_dif_pct": -0.2, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-09", "lote": "10739", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 64, "cab_ant": 64, "dif_cab": 0, "dt_entrada": "22/04/26", "dias": 172, "racao": "ADAPTAÇÃO", "racao_dias": 87, "ms_dia": 9.71, "ms_1": 9.6, "ms_5": 9.54, "var_vs_1_pct": 1.1, "ims_pv": 2.0, "mn_dia": 21.01, "peso_entrada": 226.43, "peso_prj": 484.43, "dt_abate": "31/07/26", "atraso_abate_dias": 71, "leitura_1": 0.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1359.0, "forn_realizado": 1345.0, "forn_dif_pct": -1.0, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-14", "lote": "10752", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 86, "cab_ant": 86, "dif_cab": 0, "dt_entrada": "06/08/26", "dias": 66, "racao": "TERMINAÇÃO", "racao_dias": 44, "ms_dia": 12.53, "ms_1": 12.59, "ms_5": 13.47, "var_vs_1_pct": -0.5, "ims_pv": 2.31, "mn_dia": 24.24, "peso_entrada": 443.12, "peso_prj": 542.12, "dt_abate": "14/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2100.0, "forn_realizado": 2085.0, "forn_dif_pct": -0.7, "tratos": 2, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "C-15", "lote": "10768", "rebanho": "BOITEL- DIRCEU", "ct": "MM", "cab": 67, "cab_ant": 67, "dif_cab": 0, "dt_entrada": "09/08/26", "dias": 63, "racao": "TERMINAÇÃO", "racao_dias": 40, "ms_dia": 11.58, "ms_1": 11.77, "ms_5": 11.86, "var_vs_1_pct": -1.6, "ims_pv": 2.31, "mn_dia": 22.46, "peso_entrada": 413.98, "peso_prj": 502.18, "dt_abate": "17/11/26", "atraso_abate_dias": null, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1071.0, "forn_realizado": 1505.0, "forn_dif_pct": 40.5, "tratos": 1, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "E-04", "lote": "10776", "rebanho": "PRÓPRIO", "ct": "BI", "cab": 14, "cab_ant": 14, "dif_cab": 0, "dt_entrada": "03/04/26", "dias": 191, "racao": "TERMINAÇÃO", "racao_dias": 20, "ms_dia": 0.04, "ms_1": 0.1, "ms_5": 0.04, "var_vs_1_pct": -60.0, "ims_pv": 0.01, "mn_dia": 0.07, "peso_entrada": 362.28, "peso_prj": 648.78, "dt_abate": "12/07/26", "atraso_abate_dias": 90, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1.0, "forn_realizado": 1.0, "forn_dif_pct": -28.6, "tratos": 1, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "F-04", "lote": "10736", "rebanho": "PRÓPRIO", "ct": "MC", "cab": 82, "cab_ant": 82, "dif_cab": 0, "dt_entrada": "18/03/26", "dias": 207, "racao": "TERMINAÇÃO", "racao_dias": 87, "ms_dia": 11.76, "ms_1": 11.73, "ms_5": 11.49, "var_vs_1_pct": 0.3, "ims_pv": 1.93, "mn_dia": 22.8, "peso_entrada": 300.29, "peso_prj": 610.79, "dt_abate": "26/06/26", "atraso_abate_dias": 106, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 1306.0, "forn_realizado": 1870.0, "forn_dif_pct": 43.2, "tratos": 1, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "F-05", "lote": "10719", "rebanho": "PRÓPRIO", "ct": "MC", "cab": 88, "cab_ant": 88, "dif_cab": 0, "dt_entrada": "07/05/26", "dias": 157, "racao": "TERMINAÇÃO", "racao_dias": 87, "ms_dia": 6.44, "ms_1": 6.44, "ms_5": 8.85, "var_vs_1_pct": 0.0, "ims_pv": 1.08, "mn_dia": 12.5, "peso_entrada": 363.37, "peso_prj": 598.87, "dt_abate": "15/08/26", "atraso_abate_dias": 56, "leitura_1": 1.5, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 751.0, "forn_realizado": 1100.0, "forn_dif_pct": 46.5, "tratos": 1, "tratos_zerados": 0, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "P-05", "lote": "10793", "rebanho": "BOITEL- DIRCEU", "ct": "BI", "cab": 75, "cab_ant": 75, "dif_cab": 0, "dt_entrada": "08/10/26", "dias": 3, "racao": "ADAPTAÇÃO", "racao_dias": 3, "ms_dia": 5.12, "ms_1": 5.56, "ms_5": 4.07, "var_vs_1_pct": -7.9, "ims_pv": 1.44, "mn_dia": 11.13, "peso_entrada": 350.0, "peso_prj": 354.5, "dt_abate": "16/01/27", "atraso_abate_dias": null, "leitura_1": 2.0, "leitura_2": 1.0, "leitura_3": 0.0, "forn_previsto": 855.0, "forn_realizado": 835.0, "forn_dif_pct": -2.3, "tratos": 2, "tratos_zerados": 1, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "P-09", "lote": "10709", "rebanho": "PRÓPRIO", "ct": "MC", "cab": 173, "cab_ant": 173, "dif_cab": 0, "dt_entrada": "12/03/26", "dias": 213, "racao": "TERMINAÇÃO", "racao_dias": 18, "ms_dia": 11.21, "ms_1": 11.09, "ms_5": 11.09, "var_vs_1_pct": 1.1, "ims_pv": 2.07, "mn_dia": 21.56, "peso_entrada": 222.19, "peso_prj": 541.69, "dt_abate": "20/06/26", "atraso_abate_dias": 112, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 2.0, "forn_previsto": 3721.0, "forn_realizado": 3730.0, "forn_dif_pct": 0.2, "tratos": 2, "tratos_zerados": 1, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "P-10", "lote": "10705", "rebanho": "PRÓPRIO", "ct": "MC", "cab": 205, "cab_ant": 205, "dif_cab": 0, "dt_entrada": "13/05/26", "dias": 151, "racao": "TERMINAÇÃO", "racao_dias": 18, "ms_dia": 10.68, "ms_1": 10.56, "ms_5": 10.06, "var_vs_1_pct": 1.1, "ims_pv": 2.27, "mn_dia": 20.54, "peso_entrada": 244.35, "peso_prj": 470.85, "dt_abate": "21/08/26", "atraso_abate_dias": 50, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 4199.0, "forn_realizado": 4210.0, "forn_dif_pct": 0.3, "tratos": 2, "tratos_zerados": 1, "tratadores": "GEAZI SILVA FELIX"}, {"curral": "P-11", "lote": "10744", "rebanho": "PRÓPRIO", "ct": "MM", "cab": 102, "cab_ant": 102, "dif_cab": 0, "dt_entrada": "27/06/26", "dias": 106, "racao": "TERMINAÇÃO", "racao_dias": 61, "ms_dia": 11.55, "ms_1": 11.46, "ms_5": 12.19, "var_vs_1_pct": 0.8, "ims_pv": 2.09, "mn_dia": 22.21, "peso_entrada": 404.93, "peso_prj": 553.33, "dt_abate": "05/10/26", "atraso_abate_dias": 5, "leitura_1": 1.0, "leitura_2": 1.0, "leitura_3": 1.0, "forn_previsto": 2268.0, "forn_realizado": 2265.0, "forn_dif_pct": -0.1, "tratos": 2, "tratos_zerados": 1, "tratadores": "GEAZI SILVA FELIX"}], "proprietarios": [{"rebanho": "BOITEL- DIRCEU", "cab": 1589, "lotes": 18, "cab_ant": 1589, "dif_cab": 0}, {"rebanho": "PRÓPRIO", "cab": 664, "lotes": 6, "cab_ant": 692, "dif_cab": -28}], "fabrica_racoes": [], "fabrica_ingredientes": [], "tratadores": [{"tratador": "GEAZI SILVA FELIX", "tratos": 48, "tratos_zerados": 8, "previsto": 49991.0, "realizado": 48266.0, "dif_pct": -3.5, "desvio_medio_abs_pct": 65.1, "currais": 28}], "tratos": [{"chave": "A-02-1", "curral": "A-02", "lote": "10791", "n_trato": 1, "previsto": 415.5, "realizado": 685.0, "dif_kg": 269.5, "dif_pct": 64.86, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-02-2", "curral": "A-02", "lote": "10791", "n_trato": 2, "previsto": 969.5, "realizado": 700.0, "dif_kg": -269.5, "dif_pct": -27.8, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-03-1", "curral": "A-03", "lote": "10787", "n_trato": 1, "previsto": 699.0, "realizado": 1720.0, "dif_kg": 1021.0, "dif_pct": 146.07, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-03-2", "curral": "A-03", "lote": "10787", "n_trato": 2, "previsto": 1631.0, "realizado": 600.0, "dif_kg": -1031.0, "dif_pct": -63.21, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-04-1", "curral": "A-04", "lote": "10794", "n_trato": 1, "previsto": 337.5, "realizado": 625.0, "dif_kg": 287.5, "dif_pct": 85.19, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-04-2", "curral": "A-04", "lote": "10794", "n_trato": 2, "previsto": 787.5, "realizado": 500.0, "dif_kg": -287.5, "dif_pct": -36.51, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-05-1", "curral": "A-05", "lote": "10788", "n_trato": 1, "previsto": 624.0, "realizado": 1310.0, "dif_kg": 686.0, "dif_pct": 109.94, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-05-2", "curral": "A-05", "lote": "10788", "n_trato": 2, "previsto": 1456.0, "realizado": 800.0, "dif_kg": -656.0, "dif_pct": -45.05, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-06-1", "curral": "A-06", "lote": "10792", "n_trato": 1, "previsto": 435.0, "realizado": 460.0, "dif_kg": 25.0, "dif_pct": 5.75, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "A-06-2", "curral": "A-06", "lote": "10792", "n_trato": 2, "previsto": 1015.0, "realizado": 1000.0, "dif_kg": -15.0, "dif_pct": -1.48, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "B-14-1", "curral": "B-14", "lote": "10755", "n_trato": 1, "previsto": 663.6, "realizado": 705.0, "dif_kg": 41.4, "dif_pct": 6.24, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "B-14-2", "curral": "B-14", "lote": "10755", "n_trato": 2, "previsto": 1548.4, "realizado": 1500.0, "dif_kg": -48.4, "dif_pct": -3.13, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "B-15-1", "curral": "B-15", "lote": "10754", "n_trato": 1, "previsto": 611.1, "realizado": 645.0, "dif_kg": 33.9, "dif_pct": 5.55, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "B-15-2", "curral": "B-15", "lote": "10754", "n_trato": 2, "previsto": 1425.9, "realizado": 1400.0, "dif_kg": -25.9, "dif_pct": -1.82, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-01-1", "curral": "C-01", "lote": "10784", "n_trato": 1, "previsto": 885.0, "realizado": 1410.0, "dif_kg": 525.0, "dif_pct": 59.32, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-01-2", "curral": "C-01", "lote": "10784", "n_trato": 2, "previsto": 2065.0, "realizado": 1640.0, "dif_kg": -425.0, "dif_pct": -20.58, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-02-1", "curral": "C-02", "lote": "10785", "n_trato": 1, "previsto": 371.48, "realizado": 595.0, "dif_kg": 223.53, "dif_pct": 60.17, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-02-2", "curral": "C-02", "lote": "10785", "n_trato": 2, "previsto": 866.77, "realizado": 700.0, "dif_kg": -166.78, "dif_pct": -19.24, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-04-1", "curral": "C-04", "lote": "10756", "n_trato": 1, "previsto": 809.03, "realizado": 1235.0, "dif_kg": 425.97, "dif_pct": 52.65, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-04-2", "curral": "C-04", "lote": "10756", "n_trato": 2, "previsto": 1887.73, "realizado": 1500.0, "dif_kg": -387.73, "dif_pct": -20.54, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-05-1", "curral": "C-05", "lote": "10753", "n_trato": 1, "previsto": 361.82, "realizado": 45.0, "dif_kg": -316.82, "dif_pct": -87.56, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-05-2", "curral": "C-05", "lote": "10753", "n_trato": 2, "previsto": 844.25, "realizado": 1230.0, "dif_kg": 385.75, "dif_pct": 45.69, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-06-1", "curral": "C-06", "lote": "10782", "n_trato": 1, "previsto": 894.96, "realizado": 2070.0, "dif_kg": 1175.04, "dif_pct": 131.3, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-06-2", "curral": "C-06", "lote": "10782", "n_trato": 2, "previsto": 2323.26, "realizado": 1130.0, "dif_kg": -1193.27, "dif_pct": -51.36, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-07-1", "curral": "C-07", "lote": "10781", "n_trato": 1, "previsto": 767.21, "realizado": 1565.0, "dif_kg": 797.79, "dif_pct": 103.99, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-07-2", "curral": "C-07", "lote": "10781", "n_trato": 2, "previsto": 1790.16, "realizado": 970.0, "dif_kg": -820.16, "dif_pct": -45.81, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-08-1", "curral": "C-08", "lote": "10780", "n_trato": 1, "previsto": 775.21, "realizado": 1680.0, "dif_kg": 904.79, "dif_pct": 116.72, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-08-2", "curral": "C-08", "lote": "10780", "n_trato": 2, "previsto": 1808.82, "realizado": 900.0, "dif_kg": -908.82, "dif_pct": -50.24, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-09-1", "curral": "C-09", "lote": "10739", "n_trato": 1, "previsto": 407.75, "realizado": 545.0, "dif_kg": 137.25, "dif_pct": 33.66, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-09-2", "curral": "C-09", "lote": "10739", "n_trato": 2, "previsto": 951.4, "realizado": 800.0, "dif_kg": -151.41, "dif_pct": -15.91, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-14-1", "curral": "C-14", "lote": "10752", "n_trato": 1, "previsto": 630.0, "realizado": 635.0, "dif_kg": 5.0, "dif_pct": 0.79, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-14-2", "curral": "C-14", "lote": "10752", "n_trato": 2, "previsto": 1470.0, "realizado": 1450.0, "dif_kg": -20.0, "dif_pct": -1.36, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "C-15-1", "curral": "C-15", "lote": "10768", "n_trato": 1, "previsto": 1071.0, "realizado": 1505.0, "dif_kg": 434.0, "dif_pct": 40.52, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "E-04-1", "curral": "E-04", "lote": "10776", "n_trato": 1, "previsto": 1.4, "realizado": 1.0, "dif_kg": -0.4, "dif_pct": -28.57, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "F-04-1", "curral": "F-04", "lote": "10736", "n_trato": 1, "previsto": 1305.5, "realizado": 1870.0, "dif_kg": 564.5, "dif_pct": 43.24, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "F-05-1", "curral": "F-05", "lote": "10719", "n_trato": 1, "previsto": 750.75, "realizado": 1100.0, "dif_kg": 349.25, "dif_pct": 46.52, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "G-02-1", "curral": "G-02", "lote": "10498", "n_trato": 1, "previsto": 322.88, "realizado": 0.0, "dif_kg": -322.88, "dif_pct": -100.0, "leitura": 0.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "G-04-1", "curral": "G-04", "lote": "10777", "n_trato": 1, "previsto": 1197.0, "realizado": 0.0, "dif_kg": -1197.0, "dif_pct": -100.0, "leitura": 2.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "G-05-1", "curral": "G-05", "lote": "10731", "n_trato": 1, "previsto": 709.8, "realizado": 0.0, "dif_kg": -709.8, "dif_pct": -100.0, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "G-06-1", "curral": "G-06", "lote": "10722", "n_trato": 1, "previsto": 1061.29, "realizado": 0.0, "dif_kg": -1061.29, "dif_pct": -100.0, "leitura": 1.5, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-05-1", "curral": "P-05", "lote": "10793", "n_trato": 1, "previsto": 256.5, "realizado": 835.0, "dif_kg": 578.5, "dif_pct": 225.54, "leitura": 2.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-05-2", "curral": "P-05", "lote": "10793", "n_trato": 2, "previsto": 598.5, "realizado": 0.0, "dif_kg": -598.5, "dif_pct": -100.0, "leitura": 2.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-09-1", "curral": "P-09", "lote": "10709", "n_trato": 1, "previsto": 1116.3, "realizado": 3730.0, "dif_kg": 2613.7, "dif_pct": 234.14, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-09-2", "curral": "P-09", "lote": "10709", "n_trato": 2, "previsto": 2604.7, "realizado": 0.0, "dif_kg": -2604.7, "dif_pct": -100.0, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-10-1", "curral": "P-10", "lote": "10705", "n_trato": 1, "previsto": 1259.7, "realizado": 4210.0, "dif_kg": 2950.3, "dif_pct": 234.21, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-10-2", "curral": "P-10", "lote": "10705", "n_trato": 2, "previsto": 2939.3, "realizado": 0.0, "dif_kg": -2939.3, "dif_pct": -100.0, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-11-1", "curral": "P-11", "lote": "10744", "n_trato": 1, "previsto": 680.4, "realizado": 2265.0, "dif_kg": 1584.6, "dif_pct": 232.89, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}, {"chave": "P-11-2", "curral": "P-11", "lote": "10744", "n_trato": 2, "previsto": 1587.6, "realizado": 0.0, "dif_kg": -1587.6, "dif_pct": -100.0, "leitura": 1.0, "tratador": "GEAZI SILVA FELIX"}], "mudancas_dieta": [{"curral": "C-06", "lote": "10782", "racao": "TERMINAÇÃO", "racao_ant": "ADAPTAÇÃO", "racao_dias": 2.0, "dias_conf": 21.0}], "gerado_em": "11/10/2026 16:45"};
 // Dados ao vivo: arquivo painel_dados.json gravado no Google Drive pela tarefa diária, servido pelo Apps Script da Truland.
 var URL_DADOS = 'https://script.google.com/macros/s/AKfycbxzUKH1lREpWRiVaxhPU7T5jPSVzY7kA7MPX0sm8jrx-_Szudn7nGxp5XPm1_FpR55Q/exec?acao=dados&chave=Rt8NbqFk5JEPNu30LbTyu4ow';
 </script>
@@ -139,162 +253,313 @@ var URL_DADOS = 'https://script.google.com/macros/s/AKfycbxzUKH1lREpWRiVaxhPU7T5
   function n2(v) { return (v === null || isNaN(v)) ? '—' : nf2.format(v); }
   function sgn(v, f, suf) { f = f || n0; suf = suf || ''; return (v === null || isNaN(v)) ? '—' : (v > 0 ? '+' : '') + f(v) + suf; }
   function $(id) { return document.getElementById(id); }
-  function setc(el, c) { el.className = el.className.replace(/\b(good|warn|bad|muted)\b/g, '').trim() + (c ? ' ' + c : ''); }
+  function setc(el, c) { el.className = el.className.replace(/\b(good|warn|bad|muted|ok|atencao|grave)\b/g, '').replace(/\s+/g, ' ').trim() + (c ? ' ' + c : ''); }
   function td(v, c) { var e = document.createElement('td'); if (c) e.className = c; e.textContent = v; return e; }
-  function row(tb, key, cells) { var tr = document.createElement('tr'); cells.forEach(function (c) { tr.appendChild(td(c[0], c[1])); }); tb.appendChild(tr); return tr; }
+  function row(tb, cells) { var tr = document.createElement('tr'); cells.forEach(function (c) { tr.appendChild(td(c[0], c[1])); }); tb.appendChild(tr); return tr; }
   function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
   function svgEl(n, a) { var e = document.createElementNS('http://www.w3.org/2000/svg', n); for (var k in a) e.setAttribute(k, a[k]); return e; }
   function txt(x, y, s, a) { var e = svgEl('text', a || {}); e.setAttribute('x', x); e.setAttribute('y', y); e.textContent = s; return e; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+  var COR = { ok: '#2e8b45', atencao: '#f3b531', grave: '#c62828', nd: '#b4b4ad', prev: '#cfd0c6', ink: '#1c1c1a', ink2: '#55554f', muted: '#8b8b84', line: '#e1e0d8', verde: '#3d441f' };
+  var AREA = { Fontes: 'TI / TGC', Consumo: 'Nutrição', Rebanho: 'Controle de rebanho', Abate: 'Comercial', Trato: 'Trato', Fábrica: 'Fábrica', Dieta: 'Nutrição' };
 
   var rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-  var DATA = {}, R = {}, lotes = [];
+  var DATA = {}, R = {}, lotes = [], estados = {};
 
-  function fill(d) {
-  DATA = d || {};
-  R = (DATA.resumo && DATA.resumo[0]) || {};
-  lotes = DATA.lotes || [];
-  ['al-body', 'prop-body', 'rac-body', 'trd-body', 'lot-body'].forEach(function (id) { clear($(id)); });
-
-  // ---------- cabeçalho
-  $('ref').textContent = R.data_referencia || '—';
-  $('refant').textContent = R.data_anterior || '—';
-  $('rels').textContent = ['Zootécnico', 'Batida', 'Trato'].map(function (n, i) { return n + (R[['rel_zootecnico', 'rel_batida', 'rel_trato'][i]] === 'sim' ? ' ✓' : ' ✗'); }).join(' · ');
-  $('upd').textContent = (DATA.gerado_em ? 'Dados atualizados em ' + DATA.gerado_em : '') + (DATA.__aoVivo ? ' · conectado' : ' · dados embutidos na página');
-  var g = num(R.n_grave) || 0, a = num(R.n_atencao) || 0;
-  var take = g + ' ocorrência' + (g === 1 ? '' : 's') + ' grave' + (g === 1 ? '' : 's') + ' e ' + a + ' de atenção em ' + (R.data_referencia || '—') + '.';
-  var partes = [];
-  if (num(R.dif_cab)) { var mv = [];
-    if (num(R.lotes_saidos)) mv.push(R.lotes_saidos + (num(R.lotes_saidos) === 1 ? ' lote saiu' : ' lotes saíram') + ' do relatório');
-    if (num(R.lotes_novos)) mv.push(R.lotes_novos + (num(R.lotes_novos) === 1 ? ' lote novo' : ' lotes novos'));
-    if (num(R.lotes_alterados)) mv.push(R.lotes_alterados + (num(R.lotes_alterados) === 1 ? ' lote com cabeças alteradas' : ' lotes com cabeças alteradas'));
-    partes.push('rebanho ' + sgn(num(R.dif_cab)) + ' cab vs dia anterior' + (mv.length ? ' (' + mv.join(', ') + ')' : ' sem entrada/saída registrada')); }
-  if (num(R.dif_fab_forn_pct) !== null && Math.abs(num(R.dif_fab_forn_pct)) > 5) partes.push('ração fornecida ' + sgn(num(R.dif_fab_forn_pct), n1, '%') + ' em relação à fabricada');
-  if (num(R.lotes_abate_vencidos)) partes.push(R.lotes_abate_vencidos + ' lotes com abate vencido');
-  if (partes.length) take += ' Destaques: ' + partes.join('; ') + '.';
-  $('take').textContent = take;
-
-  // ---------- KPIs resumo
-  $('k-cab').textContent = n0(num(R.cab));
-  var dc = num(R.dif_cab); $('k-cab-d').textContent = dc === null ? '—' : sgn(dc) + ' cab vs ' + (R.data_anterior || 'dia anterior') + (R.cab_ant !== null && R.cab_ant !== undefined ? ' (' + n0(num(R.cab_ant)) + ')' : ''); setc($('k-cab-d'), !dc ? 'muted' : 'bad');
-  $('k-ms').textContent = n2(num(R.ms_dia));
-  if (num(R.ms_1) !== null) { var vm = (num(R.ms_dia) - num(R.ms_1)) / num(R.ms_1) * 100; $('k-ms-d').textContent = sgn(vm, n1, '%') + ' vs dia anterior (' + n2(num(R.ms_1)) + ') · IMS ' + n2(num(R.ims_pv)) + '% PV'; setc($('k-ms-d'), Math.abs(vm) > 10 ? 'warn' : 'muted'); }
-  $('k-fxf').textContent = num(R.fornecido_kg) !== null ? n0(num(R.fornecido_kg)) + ' × ' + n0(num(R.fabricado_kg)) : '—';
-  var fx = num(R.dif_fab_forn_pct); $('k-fxf-d').textContent = fx === null ? '—' : sgn(fx, n1, '%') + ' fornecido em relação ao fabricado'; setc($('k-fxf-d'), fx === null ? 'muted' : Math.abs(fx) > 5 ? 'bad' : 'good');
-  $('k-tr').textContent = num(R.trato_realizado) !== null ? n0(num(R.trato_realizado)) + ' × ' + n0(num(R.trato_previsto)) : '—';
-  var tp = num(R.trato_dif_pct); $('k-tr-d').textContent = tp === null ? '—' : sgn(tp, n1, '%') + ' no total do dia'; setc($('k-tr-d'), tp === null ? 'muted' : Math.abs(tp) > 5 ? 'warn' : 'good');
-  $('k-ab').textContent = n0(num(R.lotes_abate_vencidos)); $('k-ab-d').textContent = n0(num(R.cab_abate_vencidos)) + ' cabeças';
-  $('k-al').textContent = String(g + a); $('k-al-d').textContent = g + ' graves · ' + a + ' atenção · ' + (num(R.n_info) || 0) + ' informativos'; setc($('k-al'), g ? 'bad' : a ? 'warn' : 'good');
-
-  // ---------- pontos de atenção
-  var alb = $('al-body');
-  (DATA.atencao || []).forEach(function (x) {
-    var tr = document.createElement('tr');
-    var c1 = document.createElement('td'); var p = document.createElement('span'); p.className = 'pill ' + x.nivel; p.textContent = x.nivel === 'grave' ? 'Grave' : x.nivel === 'atencao' ? 'Atenção' : 'Info'; c1.appendChild(p);
-    var c3 = document.createElement('td'); var t = document.createElement('div'); t.className = 'al-t'; t.textContent = x.titulo; var d = document.createElement('div'); d.className = 'al-d'; d.textContent = x.detalhe; c3.appendChild(t); c3.appendChild(d);
-    tr.appendChild(c1); tr.appendChild(td(x.bloco)); tr.appendChild(c3); alb.appendChild(tr);
-  });
-  // ---------- proprietários
-  (DATA.proprietarios || []).forEach(function (p) { var dv = num(p.dif_cab); row($('prop-body'), p.rebanho, [[p.rebanho, ''], [n0(num(p.cab)), 'n'], [dv === null ? '—' : sgn(dv), 'n ' + (dv ? 'bad' : 'muted')], [n0(num(p.lotes)), 'n']]); });
-
-  // ---------- fábrica
-  $('f-fab').textContent = n0(num(R.fabricado_kg)); $('f-forn').textContent = n0(num(R.fornecido_kg));
-  $('f-dif').textContent = sgn(num(R.dif_fab_forn_kg), n0); $('f-dif-d').textContent = fx === null ? '—' : sgn(fx, n1, '%'); setc($('f-dif-d'), fx === null ? 'muted' : Math.abs(fx) > 5 ? 'bad' : 'good');
-  $('f-tot').textContent = n0(num(R.fabricado_total_kg));
-  (DATA.fabrica_racoes || []).forEach(function (r) { row($('rac-body'), r.racao, [[r.racao_curta, ''], [n0(num(r.batidas)), 'n'], [n0(num(r.total_kg)), 'n'], [r.cab === null ? '—' : n0(num(r.cab)), 'n'], [r.kg_cab === null ? '—' : n2(num(r.kg_cab)), 'n'], [r.batidas_ant === null ? '—' : n0(num(r.batidas_ant)), 'n muted'], [r.total_kg_ant === null ? '—' : n0(num(r.total_kg_ant)), 'n muted']]); });
-
-  fillTrato();
-  fillLotes();
+  // -------------------------------------------------------- estado por lote
+  function estadoLote(l) {
+    var motivos = [], nivel = 'ok';
+    function add(n, t) { motivos.push({ n: n, t: t }); if (n === 'grave') nivel = 'grave'; else if (n === 'atencao' && nivel !== 'grave') nivel = 'atencao'; }
+    var ms = num(l.ms_dia), dias = num(l.dias) || 0, v1 = num(l.var_vs_1_pct), at = num(l.atraso_abate_dias), fd = num(l.forn_dif_pct), dc = num(l.dif_cab), tz = num(l.tratos_zerados), tr = num(l.tratos);
+    if (ms !== null && ms < 0.5 && dias > 1) add('grave', 'MS ' + n2(ms) + ' kg');
+    if (dc) add('grave', 'cab ' + n0(num(l.cab_ant)) + '→' + n0(num(l.cab)));
+    if (!(ms !== null && ms < 0.5) && v1 !== null && Math.abs(v1) > 10 && dias > 3) add('atencao', 'MS ' + sgn(v1, n0, '%'));
+    if (fd !== null && Math.abs(fd) > 10) add('atencao', 'trato ' + sgn(fd, n0, '%'));
+    if (at !== null && at > 0) add('atencao', 'abate +' + at + ' d');
+    if (tr !== null && tr >= 2 && tz !== null && tz >= tr - 1 && num(l.forn_realizado) > 0) add('atencao', '1 trato só');
+    if (num(l.racao_dias) !== null && num(l.racao_dias) <= 1 && dias > 1) add('info', 'dieta nova');
+    return { nivel: nivel, motivos: motivos };
   }
 
+  // ------------------------------------------------------------- preencher
+  function fill(d) {
+    DATA = d || {};
+    R = (DATA.resumo && DATA.resumo[0]) || {};
+    lotes = (DATA.lotes || []).slice().sort(function (a, b) { return a.curral < b.curral ? -1 : a.curral > b.curral ? 1 : 0; });
+    estados = {}; lotes.forEach(function (l) { estados[l.curral] = estadoLote(l); });
+    ['prop-body', 'ab-body', 'rac-body', 'trd-body'].forEach(function (id) { clear($(id)); });
+    clear($('acoes')); clear($('mov')); clear($('chips'));
+
+    // cabeçalho
+    $('ref').textContent = R.data_referencia || '—';
+    $('refant').textContent = R.data_anterior || '—';
+    $('rels').textContent = ['Zootécnico', 'Análise de Batida', 'Eficiência de Trato'].map(function (n, i) { return n + (R[['rel_zootecnico', 'rel_batida', 'rel_trato'][i]] === 'sim' ? ' ✓' : ' ✗'); }).join(' · ');
+    $('upd').textContent = (DATA.gerado_em ? 'Dados atualizados em ' + DATA.gerado_em : '') + (DATA.__aoVivo ? ' · conectado' : ' · dados embutidos na página');
+    var g = num(R.n_grave) || 0, a = num(R.n_atencao) || 0;
+    var take = $('take'); clear(take);
+    take.appendChild(el('b', '', (g ? g + ' grave' + (g > 1 ? 's' : '') : 'nenhuma grave') + ' e ' + a + ' de atenção'));
+    var partes = [];
+    if (num(R.dif_cab)) {
+      var mv = [];
+      if (num(R.lotes_saidos)) mv.push(R.lotes_saidos + (num(R.lotes_saidos) === 1 ? ' lote saiu' : ' lotes saíram') + ' do relatório');
+      if (num(R.lotes_novos)) mv.push(R.lotes_novos + (num(R.lotes_novos) === 1 ? ' lote novo' : ' lotes novos'));
+      partes.push('rebanho ' + sgn(num(R.dif_cab)) + ' cab' + (mv.length ? ' (' + mv.join(', ') + ')' : ' sem entrada/saída registrada'));
+    }
+    if (num(R.dif_fab_forn_pct) !== null && Math.abs(num(R.dif_fab_forn_pct)) > 5) partes.push('fornecido ' + sgn(num(R.dif_fab_forn_pct), n1, '%') + ' sobre o fabricado');
+    if (num(R.lotes_abate_vencidos)) partes.push(R.lotes_abate_vencidos + ' lotes com abate vencido');
+    take.appendChild(document.createTextNode(' em ' + (R.data_referencia || '—') + '.' + (partes.length ? ' Destaques: ' + partes.join('; ') + '.' : '')));
+
+    // níveis por bloco (vindos da lista de ocorrências)
+    var nivelBloco = {};
+    (DATA.atencao || []).forEach(function (x) { var cur = nivelBloco[x.bloco]; if (x.nivel === 'grave' || (x.nivel === 'atencao' && cur !== 'grave')) nivelBloco[x.bloco] = x.nivel; });
+    function nb(b) { return nivelBloco[b] || 'ok'; }
+
+    // KPIs
+    $('k-cab').textContent = n0(num(R.cab));
+    var dc = num(R.dif_cab); $('k-cab-d').textContent = dc === null ? '—' : sgn(dc) + ' cab vs ' + (R.data_anterior || 'dia anterior') + ' (' + n0(num(R.cab_ant)) + ')' + (num(R.lotes_saidos) ? ' · ' + R.lotes_saidos + ' saídas' : '') + (num(R.lotes_novos) ? ' · ' + R.lotes_novos + ' novos' : '');
+    setc($('kpi-cab'), nb('Rebanho'));
+    $('k-ms').textContent = n2(num(R.ms_dia));
+    if (num(R.ms_1) !== null) { var vm = (num(R.ms_dia) - num(R.ms_1)) / num(R.ms_1) * 100; $('k-ms-d').textContent = sgn(vm, n1, '%') + ' vs dia anterior (' + n2(num(R.ms_1)) + ') · IMS ' + n2(num(R.ims_pv)) + '% PV'; }
+    setc($('kpi-ms'), nb('Consumo'));
+    var tp = num(R.trato_dif_pct);
+    $('k-tr').textContent = num(R.trato_realizado) !== null ? n0(num(R.trato_realizado)) : 'sem dados'; $('k-tr').className = num(R.trato_realizado) !== null ? 'val' : 'val sm';
+    $('k-tr-d').textContent = tp === null ? 'relatório de Eficiência de Trato indisponível' : 'previsto ' + n0(num(R.trato_previsto)) + ' kg · ' + sgn(tp, n1, '%') + ' · ' + n0(num(R.currais_um_trato)) + ' currais num só trato';
+    setc($('kpi-tr'), R.rel_trato !== 'sim' ? 'grave' : nb('Trato'));
+    var fx = num(R.dif_fab_forn_pct);
+    $('k-fxf').textContent = num(R.fabricado_kg) !== null ? n0(num(R.fabricado_kg)) : 'sem dados'; $('k-fxf').className = num(R.fabricado_kg) !== null ? 'val' : 'val sm';
+    $('k-fxf-d').textContent = fx === null ? (R.rel_batida === 'sim' ? '—' : 'Análise de Batida não enviada pelo TGC') : 'fornecido ' + n0(num(R.fornecido_kg)) + ' kg · ' + sgn(fx, n1, '%') + ' sobre o fabricado';
+    setc($('kpi-fab'), R.rel_batida !== 'sim' ? 'grave' : fx !== null && Math.abs(fx) > 5 ? 'atencao' : nb('Fábrica'));
+    $('k-ab').textContent = n0(num(R.lotes_abate_vencidos)); $('k-ab-d').textContent = n0(num(R.cab_abate_vencidos)) + ' cabeças além da data prevista';
+    setc($('kpi-ab'), num(R.lotes_abate_vencidos) ? 'atencao' : 'ok');
+    $('k-al').textContent = String(g + a); $('k-al-d').textContent = g + ' graves · ' + a + ' de atenção · ' + (num(R.n_info) || 0) + ' informativas';
+    setc($('kpi-al'), g ? 'grave' : a ? 'atencao' : 'ok');
+
+    // chips estado dos currais
+    var cont = { grave: 0, atencao: 0, ok: 0 };
+    lotes.forEach(function (l) { cont[estados[l.curral].nivel]++; });
+    [['grave', 'currais graves'], ['atencao', 'currais em atenção'], ['ok', 'currais conformes']].forEach(function (c) {
+      var ch = el('div', 'chip ' + c[0]); ch.appendChild(el('b', '', String(cont[c[0]]))); ch.appendChild(el('span', '', c[1])); $('chips').appendChild(ch);
+    });
+    var chv = el('div', 'chip'); chv.appendChild(el('b', '', n0(num(R.lotes)))); chv.appendChild(el('span', '', 'lotes alojados')); $('chips').appendChild(chv);
+    var pl = $('penlist'); clear(pl);
+    lotes.filter(function (l) { return estados[l.curral].nivel !== 'ok'; }).sort(function (a, b) { var o = { grave: 0, atencao: 1 }; return o[estados[a.curral].nivel] - o[estados[b.curral].nivel]; }).forEach(function (l) {
+      var est = estados[l.curral], m = est.motivos.filter(function (q) { return q.n !== 'info'; });
+      var c = el('div', 'ocard ' + est.nivel); c.appendChild(el('b', '', l.curral)); c.appendChild(el('span', 'm', m.length ? m[0].t + (m.length > 1 ? ' +' + (m.length - 1) : '') : '')); pl.appendChild(c);
+    });
+    if (!pl.firstChild) pl.appendChild(el('span', 'muted', 'Nenhum curral exige ação hoje.'));
+    var md = $('movdia'); clear(md);
+    function curto(t) { var m = /\((\S+), (.*?), (\d+) cab\)/.exec(t); if (m) { var dono = m[2].replace(/^BOITEL-?\s*/, '').trim().split(/\s+/); return m[1] + ' · ' + m[3] + ' cab (' + dono[dono.length - 1] + ')'; } return t; }
+    var saidos = (DATA.atencao || []).filter(function (x) { return x.bloco === 'Rebanho' && /saiu do relatório/.test(x.titulo); }).map(function (x) { return curto(x.titulo); });
+    var novos = (DATA.atencao || []).filter(function (x) { return x.bloco === 'Rebanho' && /^Lote novo/.test(x.titulo); }).map(function (x) { var m = /em (\S+): (\d+) cab \((.*?)\)/.exec(x.titulo); return m ? m[1] + ' · ' + m[2] + ' cab (' + m[3].split(/\s+/).pop() + ')' : x.titulo; });
+    var dietas = (DATA.mudancas_dieta || []).map(function (m) { return m.curral + ' → ' + racaoCurta(m.racao) + (m.racao_ant ? ' (antes ' + racaoCurta(m.racao_ant) + ')' : ''); });
+    function linha(rot, arr, vazio) { var d = el('div'); d.appendChild(el('b', '', rot + ': ')); d.appendChild(document.createTextNode(arr.length ? arr.join('; ') : vazio)); md.appendChild(d); }
+    linha('Saídas', saidos, 'nenhuma'); linha('Entradas', novos, 'nenhuma'); linha('Troca de dieta', dietas, 'nenhuma');
+
+    // proprietários
+    (DATA.proprietarios || []).forEach(function (p) { var dv = num(p.dif_cab); row($('prop-body'), [[p.rebanho, ''], [n0(num(p.cab)), 'n'], [dv === null ? '—' : sgn(dv), 'n ' + (dv ? 'bad' : 'muted')], [n0(num(p.lotes)), 'n']]); });
+
+    // ação hoje
+    var acoes = (DATA.atencao || []).filter(function (x) { return x.nivel !== 'info'; });
+    var MAX = 7;
+    acoes.slice(0, MAX).forEach(function (x) {
+      var li = el('li'); var p = el('span', 'pill ' + x.nivel, x.nivel === 'grave' ? 'Grave' : 'Atenção');
+      var mid = el('div'); mid.appendChild(el('div', 't', x.titulo)); mid.appendChild(el('div', 'd', x.detalhe || ''));
+      li.appendChild(p); li.appendChild(mid); li.appendChild(el('span', 'who', AREA[x.bloco] || x.bloco)); $('acoes').appendChild(li);
+    });
+    $('acoes-mais').textContent = acoes.length > MAX ? '+ ' + (acoes.length - MAX) + ' ocorrências de atenção — detalhadas no mapa e nas páginas seguintes.' : (acoes.length ? '' : 'Nenhuma ocorrência que exija ação hoje.');
+
+    // abate vencido
+    lotes.filter(function (l) { return num(l.atraso_abate_dias) > 0; }).sort(function (a, b) { return num(b.atraso_abate_dias) - num(a.atraso_abate_dias); }).forEach(function (l) {
+      row($('ab-body'), [[l.curral, ''], [l.lote, ''], [l.rebanho, ''], [n0(num(l.cab)), 'n'], [n0(num(l.peso_prj)) + ' kg', 'n'], [num(l.atraso_abate_dias) + ' d', 'n bad']]);
+    });
+    if (!$('ab-body').firstChild) row($('ab-body'), [['Nenhum lote com abate vencido.', 'muted']]);
+
+    // movimentação e dieta
+    var movs = (DATA.atencao || []).filter(function (x) { return x.bloco === 'Rebanho' || x.bloco === 'Dieta'; });
+    movs.forEach(function (x) {
+      var li = el('li'); li.appendChild(el('span', 'pill ' + x.nivel, x.nivel === 'grave' ? 'Grave' : x.nivel === 'atencao' ? 'Atenção' : 'Info'));
+      var mid = el('div'); mid.appendChild(el('div', 't', x.titulo)); mid.appendChild(el('div', 'd', x.detalhe || '')); li.appendChild(mid); li.appendChild(el('span')); $('mov').appendChild(li);
+    });
+    if (!movs.length) { var li0 = el('li'); li0.appendChild(el('span')); li0.appendChild(el('div', 'muted', 'Sem movimentação de lotes nem troca de dieta registrada.')); $('mov').appendChild(li0); }
+
+    // fábrica
+    $('f-fab').textContent = num(R.fabricado_kg) !== null ? n0(num(R.fabricado_kg)) : 'sem dados'; $('f-forn').textContent = n0(num(R.fornecido_kg) !== null ? num(R.fornecido_kg) : num(R.trato_realizado));
+    $('f-dif').textContent = num(R.dif_fab_forn_kg) !== null ? sgn(num(R.dif_fab_forn_kg), n0) : '—'; $('f-dif-d').textContent = fx === null ? 'Análise de Batida indisponível' : sgn(fx, n1, '%');
+    setc($('kpi-fdif'), fx === null ? 'grave' : Math.abs(fx) > 5 ? 'atencao' : 'ok');
+    setc($('kpi-ffab'), R.rel_batida === 'sim' ? 'ok' : 'grave'); setc($('kpi-ftot'), R.rel_batida === 'sim' ? 'ok' : 'grave'); setc($('kpi-fforn'), R.rel_trato === 'sim' ? 'ok' : 'grave');
+    $('f-tot').textContent = num(R.fabricado_total_kg) !== null ? n0(num(R.fabricado_total_kg)) : 'sem dados';
+    (DATA.fabrica_racoes || []).forEach(function (r) { row($('rac-body'), [[r.racao_curta, ''], [n0(num(r.batidas)), 'n'], [n0(num(r.total_kg)), 'n'], [r.cab === null ? '—' : n0(num(r.cab)), 'n'], [r.kg_cab === null ? '—' : n2(num(r.kg_cab)), 'n'], [r.batidas_ant === null ? '—' : n0(num(r.batidas_ant)), 'n muted'], [r.total_kg_ant === null ? '—' : n0(num(r.total_kg_ant)), 'n muted']]); });
+    if (!(DATA.fabrica_racoes || []).length) row($('rac-body'), [['Relatório Análise de Batida não enviado pelo TGC para ' + (R.data_referencia || 'o dia') + '. Chamado aberto pela Nutrição.', 'muted']]);
+
+    // trato
+    (DATA.tratadores || []).forEach(function (t) { var dv = num(t.dif_pct); row($('trd-body'), [[t.tratador, ''], [n0(num(t.tratos)), 'n'], [n0(num(t.tratos_zerados)), 'n' + (num(t.tratos_zerados) ? ' warn' : '')], [n0(num(t.realizado)), 'n'], [n0(num(t.previsto)), 'n'], [dv === null ? '—' : sgn(dv, n1, '%'), 'n' + (dv !== null && Math.abs(dv) > 10 ? ' warn' : ' good')]]); });
+    var ut = lotes.filter(function (l) { return num(l.tratos) >= 2 && num(l.tratos_zerados) >= num(l.tratos) - 1 && num(l.forn_realizado) > 0; }).map(function (l) { return l.curral; });
+    $('ut').textContent = ut.length ? ut.length + ' currais: ' + ut.join(', ') + ' — demais tratos lançados com zero (pode ser lançamento consolidado).' : 'Nenhum — todos os tratos lançados individualmente.';
+    clear($('dv-body'));
+    var aggT = {}; (DATA.tratos || []).forEach(function (t) { var a = aggT[t.curral] || (aggT[t.curral] = { curral: t.curral, lote: t.lote, prev: 0, real: 0 }); a.prev += num(t.previsto) || 0; a.real += num(t.realizado) || 0; });
+    Object.keys(aggT).map(function (k) { var a = aggT[k]; a.dif = a.prev ? (a.real - a.prev) / a.prev * 100 : null; return a; }).filter(function (a) { return a.dif !== null && Math.abs(a.dif) > 10; }).sort(function (a, b) { return Math.abs(b.dif) - Math.abs(a.dif); }).forEach(function (a) {
+      row($('dv-body'), [[a.curral, ''], [a.lote, ''], [n0(a.prev), 'n'], [n0(a.real), 'n'], [sgn(a.dif, n0, '%'), 'n ' + (a.real === 0 ? 'bad' : 'warn')]]);
+    });
+    if (!$('dv-body').firstChild) row($('dv-body'), [['Nenhum curral fora de ±10%.', 'muted']]);
+  }
+
+  // ----------------------------------------------------------------- MAPA
+  var LINHAS = { A: 15, B: 15, C: 15 };
+  function pid(l, i) { return l + '-' + (i < 10 ? '0' + i : '' + i); }
+  function racaoCurta(r) { return r === 'ADAPTAÇÃO' ? 'ADAPT.' : r === 'TERMINAÇÃO' ? 'TERM.' : (r || ''); }
+  function drawMapa() {
+    var box = $('mapa'); clear(box); var ob = $('outros'); clear(ob);
+    var W = 1640, H = 572;
+    var svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'xMidYMid meet' });
+    var porCurral = {}; lotes.forEach(function (l) { porCurral[l.curral] = l; });
+    var saiu = {}; (DATA.tratos || []).forEach(function (t) { if (!porCurral[t.curral]) saiu[t.curral] = t.lote; });
+
+    function pen(x, y, w, h, nome) {
+      var l = porCurral[nome], est = l ? estados[nome] : null;
+      var g = svgEl('g', { 'class': 'pen ' + (l ? est.nivel : 'vazio') });
+      g.appendChild(svgEl('rect', { x: x, y: y, width: w, height: h, rx: 7 }));
+      g.appendChild(txt(x + 9, y + 26, nome, { 'class': 'nm' }));
+      if (l) {
+        g.appendChild(txt(x + 9, y + 48, n0(num(l.cab)) + ' cab · ' + (l.ct || ''), { 'class': 'cab' }));
+        g.appendChild(txt(x + 9, y + 66, 'lote ' + l.lote, { 'class': 'lt' }));
+        var m = est.motivos.filter(function (q) { return q.n !== 'info'; });
+        g.appendChild(txt(x + 9, y + 92, m.length ? m[0].t : 'MS ' + n1(num(l.ms_dia)) + ' kg', { 'class': 'f1' }));
+        g.appendChild(txt(x + 9, y + 112, m.length > 1 ? m[1].t + (m.length > 2 ? ' +' + (m.length - 2) : '') : (m.length ? 'MS ' + n1(num(l.ms_dia)) + ' kg' : 'conforme'), { 'class': 'f2' }));
+        g.appendChild(txt(x + 9, y + h - 10, n0(num(l.dias)) + ' d · ' + racaoCurta(l.racao), { 'class': 'f2' }));
+      } else if (saiu[nome]) {
+        g.appendChild(txt(x + 9, y + 92, 'lote ' + saiu[nome], { 'class': 'f2' })); g.appendChild(txt(x + 9, y + 112, 'saiu', { 'class': 'f2' }));
+      }
+      svg.appendChild(g);
+    }
+    function rowLabel(x, y, t) { svg.appendChild(txt(x, y, t, { 'class': 'rowlab', 'font-size': 26 })); }
+
+    var x0 = 50, w = 102, gap = 4, h = 150, Wl = 15 * (w + gap) - gap;
+    rowLabel(10, 96, 'A'); for (var i = 1; i <= 15; i++) pen(x0 + (i - 1) * (w + gap), 6, w, h, pid('A', i));
+    svg.appendChild(svgEl('line', { 'class': 'cocho', x1: x0, x2: x0 + Wl, y1: 162, y2: 162 }));
+    svg.appendChild(svgEl('rect', { 'class': 'road', x: x0, y: 167, width: Wl, height: 26, rx: 3 }));
+    svg.appendChild(txt(x0 + 12, 184, 'corredor de trato · linhas A e B', { 'class': 'roadlab' }));
+    svg.appendChild(svgEl('line', { 'class': 'cocho', x1: x0, x2: x0 + Wl, y1: 198, y2: 198 }));
+    rowLabel(10, 294, 'B'); for (i = 1; i <= 15; i++) pen(x0 + (i - 1) * (w + gap), 204, w, h, pid('B', i));
+    svg.appendChild(svgEl('rect', { 'class': 'road', x: x0, y: 362, width: Wl, height: 26, rx: 3 }));
+    svg.appendChild(txt(x0 + 12, 379, 'corredor de trato · linha C', { 'class': 'roadlab' }));
+    svg.appendChild(svgEl('line', { 'class': 'cocho', x1: x0, x2: x0 + Wl, y1: 393, y2: 393 }));
+    rowLabel(10, 490, 'C'); for (i = 1; i <= 15; i++) pen(x0 + (i - 1) * (w + gap), 400, w, h, pid('C', i));
+    box.appendChild(svg);
+
+    // lotes fora das linhas A–C: cartões compactos
+    var fora = lotes.filter(function (l) { var m = /^([A-Z])-(\d+)$/.exec(l.curral); return !m || !LINHAS[m[1]] || Number(m[2]) > LINHAS[m[1]]; });
+    fora.forEach(function (l) {
+      var est = estados[l.curral], m = est.motivos.filter(function (q) { return q.n !== 'info'; });
+      var c = el('div', 'ocard ' + est.nivel); c.appendChild(el('b', '', l.curral + ' · ' + n0(num(l.cab)) + ' cab'));
+      c.appendChild(el('span', 'm', m.length ? m.map(function (q) { return q.t; }).join(' · ') : 'MS ' + n1(num(l.ms_dia)) + ' kg')); c.appendChild(document.createTextNode(' · ' + n0(num(l.dias)) + ' d · ' + racaoCurta(l.racao)));
+      ob.appendChild(c);
+    });
+    Object.keys(saiu).forEach(function (k) { var m = /^([A-Z])-(\d+)$/.exec(k); if (m && LINHAS[m[1]] && Number(m[2]) <= LINHAS[m[1]]) return; var c = el('div', 'ocard'); c.appendChild(el('b', '', k)); c.appendChild(document.createTextNode('lote ' + saiu[k] + ' saiu')); ob.appendChild(c); });
+    if (!ob.firstChild) ob.appendChild(el('span', 'muted', 'nenhum lote fora das linhas A–C'));
+  }
+
+  // ------------------------------------------------------- CONSUMO (gráfico)
+  function drawCons() {
+    var box = $('cons-chart'); clear(box);
+    var W = box.clientWidth, H = box.clientHeight; if (!W || !H) return;
+    var rows = lotes.filter(function (l) { return num(l.ms_dia) !== null; });
+    if (!rows.length) return;
+    var Hp = H - rem * 1.5, fs = Math.min(rem * 0.8, (Hp / rows.length) * 0.58), rowH = Hp / rows.length, labW = rem * 7.2, valW = rem * 6.5, top = 0;
+    var max = 1; rows.forEach(function (d) { max = Math.max(max, num(d.ms_dia) || 0, num(d.ms_5) || 0); }); max *= 1.08;
+    var x0 = labW, x1 = W - valW; function x(v) { return x0 + v / max * (x1 - x0); }
+    var svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H });
+    [4, 8, 12, 16].forEach(function (v) { if (v < max) { svg.appendChild(svgEl('line', { x1: x(v), x2: x(v), y1: 0, y2: Hp, stroke: COR.line })); svg.appendChild(txt(x(v), Hp + fs * 1.1, n0(v) + ' kg/cab', { 'font-size': fs * 0.8, fill: COR.muted, 'text-anchor': 'middle' })); } });
+    rows.forEach(function (d, i) {
+      var y = top + i * rowH + rowH / 2, ms = num(d.ms_dia), m5 = num(d.ms_5), est = estados[d.curral];
+      var col = (ms < 0.5 && num(d.dias) > 1) ? COR.grave : (num(d.var_vs_1_pct) !== null && Math.abs(num(d.var_vs_1_pct)) > 10 && num(d.dias) > 3) ? COR.atencao : COR.ok;
+      svg.appendChild(txt(0, y + fs * 0.35, d.curral + ' · ' + d.lote, { 'font-size': fs, fill: COR.ink, 'font-weight': 600 }));
+      svg.appendChild(svgEl('rect', { x: x0, y: y - rowH * 0.3, width: Math.max(2, x(ms) - x0), height: rowH * 0.6, rx: 3, fill: col }));
+      if (m5 !== null) svg.appendChild(svgEl('rect', { x: x(m5) - 2, y: y - rowH * 0.42, width: 4, height: rowH * 0.84, fill: '#fff', stroke: '#666', 'stroke-width': 1.5 }));
+      var v1 = num(d.var_vs_1_pct);
+      svg.appendChild(txt(x1 + fs * 0.4, y + fs * 0.35, n2(ms) + (v1 === null ? '' : '  ' + sgn(v1, n0, '%')), { 'font-size': fs * 0.95, fill: col === COR.ok ? COR.ink2 : col, 'font-weight': 600 }));
+    });
+    box.appendChild(svg);
+  }
+
+  // ------------------------------------------------------ FÁBRICA (gráfico)
   function drawIng() {
     var box = $('ing-chart'); clear(box);
     var W = box.clientWidth, H = box.clientHeight; if (!W || !H) return;
     var rows = (DATA.fabrica_ingredientes || []).filter(function (d) { return d.racao === 'ADAPTAÇÃO' || d.racao === 'TERMINAÇÃO'; });
+    if (!rows.length) { var p = el('div', 'vazio', 'Sem Análise de Batida para ' + (R.data_referencia || 'o dia') + ' — o desvio por ingrediente não pôde ser calculado.'); box.appendChild(p); return; }
     var items = []; ['ADAPTAÇÃO', 'TERMINAÇÃO'].forEach(function (gname) { items.push({ head: gname }); rows.filter(function (r) { return r.racao === gname; }).forEach(function (r) { items.push(r); }); });
-    var fs = Math.min(rem * 0.85, (H - rem * 2.2) / items.length * 0.62);
-    var rowH = (H - rem * 2.2) / items.length, labW = rem * 11, top = rem * 0.6;
+    var fs = Math.min(rem * 0.82, (H - rem * 2.2) / items.length * 0.62);
+    var rowH = (H - rem * 2.2) / items.length, labW = rem * 10.5, top = rem * 0.4;
     var maxAbs = 10; rows.forEach(function (r) { maxAbs = Math.max(maxAbs, Math.abs(num(r.dif_pct) || 0)); });
     var x0 = labW, x1 = W - rem * 3.6; function x(v) { return x0 + (v + maxAbs) / (2 * maxAbs) * (x1 - x0); }
     var svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H });
-    svg.appendChild(svgEl('rect', { x: x(-3), y: top, width: x(3) - x(-3), height: items.length * rowH, fill: '#ededea' }));
+    svg.appendChild(svgEl('rect', { x: x(-3), y: top, width: x(3) - x(-3), height: items.length * rowH, fill: '#e0f1e4', opacity: 0.7 }));
     svg.appendChild(svgEl('line', { x1: x(0), x2: x(0), y1: top, y2: top + items.length * rowH, stroke: '#999' }));
-    [-10, 10].forEach(function (v) { if (Math.abs(v) <= maxAbs) svg.appendChild(svgEl('line', { x1: x(v), x2: x(v), y1: top, y2: top + items.length * rowH, stroke: '#c0262d', 'stroke-dasharray': '4 4', opacity: 0.6 })); });
+    [-10, 10].forEach(function (v) { if (Math.abs(v) <= maxAbs) svg.appendChild(svgEl('line', { x1: x(v), x2: x(v), y1: top, y2: top + items.length * rowH, stroke: COR.grave, 'stroke-dasharray': '4 4', opacity: 0.6 })); });
     items.forEach(function (it, i) {
       var y = top + i * rowH + rowH / 2;
-      if (it.head) { svg.appendChild(txt(0, y + fs * 0.35, it.head, { 'font-size': fs, 'font-weight': 700, fill: '#1d1d1b' })); return; }
+      if (it.head) { svg.appendChild(txt(0, y + fs * 0.35, it.head, { 'font-size': fs, 'font-weight': 700, fill: COR.verde })); return; }
       var dif = num(it.dif_pct) || 0;
-      svg.appendChild(txt(labW - fs * 0.5, y + fs * 0.35, it.ingrediente.toLowerCase().replace(/(^|\s)\S/g, function (c) { return c.toUpperCase(); }), { 'font-size': fs, fill: '#555', 'text-anchor': 'end' }));
-      var col = it.nivel === 'grave' ? '#c0262d' : it.nivel === 'atencao' ? '#b26a00' : '#2f6fb5';
-      svg.appendChild(svgEl('rect', { x: Math.min(x(0), x(dif)), y: y - rowH * 0.32, width: Math.max(1, Math.abs(x(dif) - x(0))), height: rowH * 0.64, rx: 3, fill: col }));
-      svg.appendChild(txt(dif >= 0 ? x(dif) + fs * 0.3 : x(dif) - fs * 0.3, y + fs * 0.35, sgn(dif, n1, '%'), { 'font-size': fs * 0.9, fill: '#1d1d1b', 'text-anchor': dif >= 0 ? 'start' : 'end' }));
+      svg.appendChild(txt(labW - fs * 0.5, y + fs * 0.35, it.ingrediente.toLowerCase().replace(/(^|\s)\S/g, function (c) { return c.toUpperCase(); }), { 'font-size': fs, fill: COR.ink2, 'text-anchor': 'end' }));
+      var col = it.nivel === 'grave' ? COR.grave : it.nivel === 'atencao' ? COR.atencao : COR.ok;
+      svg.appendChild(svgEl('rect', { x: Math.min(x(0), x(dif)), y: y - rowH * 0.32, width: Math.max(2, Math.abs(x(dif) - x(0))), height: rowH * 0.64, rx: 3, fill: col }));
+      svg.appendChild(txt(dif >= 0 ? x(dif) + fs * 0.3 : x(dif) - fs * 0.3, y + fs * 0.35, sgn(dif, n1, '%'), { 'font-size': fs * 0.9, fill: COR.ink, 'text-anchor': dif >= 0 ? 'start' : 'end' }));
     });
-    [-maxAbs, -10, -3, 0, 3, 10, maxAbs].forEach(function (v) { if (Math.abs(v) <= maxAbs) svg.appendChild(txt(x(v), top + items.length * rowH + fs * 1.2, sgn(v, n0, '%'), { 'font-size': fs * 0.8, fill: '#777', 'text-anchor': 'middle' })); });
+    [-maxAbs, -10, -3, 0, 3, 10, maxAbs].forEach(function (v) { if (Math.abs(v) <= maxAbs) svg.appendChild(txt(x(v), top + items.length * rowH + fs * 1.2, sgn(v, n0, '%'), { 'font-size': fs * 0.8, fill: COR.muted, 'text-anchor': 'middle' })); });
     box.appendChild(svg);
   }
 
-  // ---------- trato
-  function fillTrato() {
-  (DATA.tratadores || []).forEach(function (t) { var dv = num(t.dif_pct); row($('trd-body'), t.tratador, [[t.tratador, ''], [n0(num(t.tratos)), 'n'], [n0(num(t.tratos_zerados)), 'n' + (num(t.tratos_zerados) ? ' warn' : '')], [n0(num(t.realizado)), 'n'], [n0(num(t.previsto)), 'n'], [dv === null ? '—' : sgn(dv, n1, '%'), 'n' + (dv !== null && Math.abs(dv) > 10 ? ' warn' : '')]]); });
-  var ut = lotes.filter(function (l) { return num(l.tratos) >= 2 && num(l.tratos_zerados) >= num(l.tratos) - 1 && num(l.forn_realizado) > 0; }).map(function (l) { return l.curral; });
-  $('ut').textContent = ut.length ? ut.length + ' currais: ' + ut.join(', ') : 'nenhum';
-  }
-
+  // -------------------------------------------------------- TRATO (gráfico)
   function drawCur() {
     var box = $('cur-chart'); clear(box);
     var W = box.clientWidth, H = box.clientHeight; if (!W || !H) return;
-    var rows = lotes.filter(function (l) { return num(l.forn_previsto) !== null; });
-    var fs = rem * 0.72, mL = rem * 3.2, mB = rem * 1.6, mT = rem * 0.9;
-    var max = 1; rows.forEach(function (d) { max = Math.max(max, num(d.forn_previsto), num(d.forn_realizado)); }); max *= 1.08;
-    var bw = (W - mL - rem * 0.5) / rows.length, inner = bw * 0.72, half = inner / 2;
-    function y(v) { return H - mB - v / max * (H - mB - mT); }
+    var agg = {}; (DATA.tratos || []).forEach(function (t) { var a = agg[t.curral] || (agg[t.curral] = { curral: t.curral, prev: 0, real: 0 }); a.prev += num(t.previsto) || 0; a.real += num(t.realizado) || 0; });
+    var rows = Object.keys(agg).sort().map(function (k) { return agg[k]; });
+    if (!rows.length) { box.appendChild(el('div', 'vazio', 'Sem relatório de Eficiência de Trato para ' + (R.data_referencia || 'o dia') + '.')); return; }
+    var Hp = H - rem * 1.5, rowH = Hp / rows.length, fs = Math.min(rem * 0.78, rowH * 0.58), labW = rem * 3.4, valW = rem * 9;
+    var max = 1; rows.forEach(function (d) { max = Math.max(max, d.prev, d.real); }); max *= 1.05;
+    var x0 = labW, x1 = W - valW; function x(v) { return x0 + v / max * (x1 - x0); }
     var svg = svgEl('svg', { viewBox: '0 0 ' + W + ' ' + H });
-    for (var t = 0; t <= 5; t++) { var v = max / 5 * t; svg.appendChild(svgEl('line', { x1: mL, x2: W - rem * 0.5, y1: y(v), y2: y(v), stroke: '#eee' })); svg.appendChild(txt(mL - fs * 0.4, y(v) + fs * 0.35, n0(v), { 'font-size': fs, fill: '#777', 'text-anchor': 'end' })); }
+    var step = max > 4000 ? 1000 : 500;
+    for (var v = step; v < max; v += step) { svg.appendChild(svgEl('line', { x1: x(v), x2: x(v), y1: 0, y2: Hp, stroke: COR.line })); svg.appendChild(txt(x(v), Hp + fs * 1.1, n0(v) + ' kg', { 'font-size': fs * 0.8, fill: COR.muted, 'text-anchor': 'middle' })); }
     rows.forEach(function (d, i) {
-      var cx = mL + i * bw + bw * 0.14, p = num(d.forn_previsto), r = num(d.forn_realizado), dif = num(d.forn_dif_pct), bad = dif !== null && Math.abs(dif) > 10;
-      svg.appendChild(svgEl('rect', { x: cx, y: y(p), width: half - 1, height: Math.max(0, y(0) - y(p)), rx: 2, fill: '#c9c9c4' }));
-      svg.appendChild(svgEl('rect', { x: cx + half, y: y(r), width: half - 1, height: Math.max(0, y(0) - y(r)), rx: 2, fill: bad ? '#c0262d' : '#2f6fb5' }));
-      svg.appendChild(txt(cx + half, H - mB + fs * 1.1, d.curral, { 'font-size': fs, fill: '#666', 'text-anchor': 'middle' }));
-      svg.appendChild(txt(cx + half, Math.min(y(p), y(r)) - fs * 0.3, dif === null ? '' : sgn(dif, n0, '%'), { 'font-size': fs * 0.9, fill: bad ? '#c0262d' : '#777', 'text-anchor': 'middle' }));
+      var y = i * rowH + rowH / 2, p = d.prev, r = d.real, dif = p ? (r - p) / p * 100 : null;
+      var col = r === 0 && p > 0 ? COR.grave : (dif !== null && Math.abs(dif) > 10) ? COR.atencao : COR.ok;
+      svg.appendChild(txt(0, y + fs * 0.35, d.curral, { 'font-size': fs, fill: COR.ink, 'font-weight': 600 }));
+      svg.appendChild(svgEl('rect', { x: x0, y: y - rowH * 0.36, width: Math.max(1, x(p) - x0), height: rowH * 0.72, rx: 3, fill: COR.prev }));
+      svg.appendChild(svgEl('rect', { x: x0, y: y - rowH * 0.2, width: Math.max(1, x(r) - x0), height: rowH * 0.4, rx: 3, fill: col }));
+      svg.appendChild(txt(x1 + fs * 0.4, y + fs * 0.35, n0(r) + ' × ' + n0(p) + (dif === null ? '' : ' · ' + sgn(dif, n0, '%')), { 'font-size': fs * 0.92, fill: col === COR.ok ? COR.ink2 : col, 'font-weight': col === COR.ok ? 400 : 700 }));
     });
     box.appendChild(svg);
   }
 
-  // ---------- lotes
-  function fillLotes() {
-  lotes.forEach(function (l) {
-    var dcl = num(l.dif_cab), v1 = num(l.var_vs_1_pct), at = num(l.atraso_abate_dias), fd = num(l.forn_dif_pct), ms = num(l.ms_dia);
-    row($('lot-body'), l.lote, [[l.curral, ''], [l.lote, ''], [l.rebanho, ''], [n0(num(l.cab)), 'n'], [dcl === null ? '—' : sgn(dcl), 'n ' + (dcl ? 'bad' : 'muted')], [n0(num(l.dias)), 'n'], [l.racao, ''], [n0(num(l.racao_dias)), 'n' + (num(l.racao_dias) <= 1 && num(l.dias) > 1 ? ' warn' : '')],
-      [n2(ms), 'n' + (ms !== null && ms < 0.5 && num(l.dias) > 1 ? ' bad' : '')], [n2(num(l.ms_1)), 'n muted'], [v1 === null ? '—' : sgn(v1, n0, '%'), 'n ' + (v1 !== null && Math.abs(v1) > 10 && num(l.dias) > 3 ? 'warn' : 'muted')], [n2(num(l.ims_pv)), 'n'],
-      [n0(num(l.peso_prj)), 'n'], [l.dt_abate, ''], [at === null ? '—' : at > 0 ? at + ' d' : 'em ' + (-at) + ' d', 'n ' + (at > 0 ? 'bad' : 'muted')], [l.forn_realizado === null ? '—' : n0(num(l.forn_realizado)), 'n'], [fd === null ? '—' : sgn(fd, n0, '%'), 'n ' + (fd !== null && Math.abs(fd) > 10 ? 'warn' : 'muted')]]);
-  });
-  }
-
-  // ---------- rotação, relógio e recarga
-  var pages = ['resumo', 'fabrica', 'trato', 'lotes'], idx = 0, t0 = Date.now(), PERIOD = 30000;
+  // ---------------------------------------------- rotação, relógio e dados
+  var TODAS = ['visao', 'mapa', 'consumo', 'fabrica', 'trato'], PER = { visao: 35000, mapa: 45000, consumo: 35000, fabrica: 30000, trato: 35000 };
+  var pages = TODAS.slice(), idx = 0, t0 = Date.now();
+  function paginas() { return TODAS.filter(function (p) { return !(p === 'fabrica' && R.rel_batida !== 'sim'); }); }
   function show(name) {
-    idx = pages.indexOf(name); if (idx < 0) idx = 0;
+    pages = paginas();
+    idx = pages.indexOf(name); if (idx < 0) { idx = 0; name = pages[0]; }
     var secs = document.querySelectorAll('.page'); for (var i = 0; i < secs.length; i++) secs[i].className = 'page' + (secs[i].getAttribute('data-page') === name ? ' on' : '');
     var tabs = document.querySelectorAll('.tab'); for (var j = 0; j < tabs.length; j++) tabs[j].className = 'tab' + (tabs[j].getAttribute('data-page') === name ? ' on' : '');
     t0 = Date.now();
-    if (name === 'fabrica') drawIng(); if (name === 'trato') drawCur();
+    if (name === 'mapa') drawMapa(); if (name === 'consumo') drawCons(); if (name === 'fabrica') drawIng(); if (name === 'trato') drawCur();
   }
   setInterval(function () {
-    var el = Date.now() - t0; $('bar').style.width = Math.min(100, el / PERIOD * 100) + '%';
-    // rola as listas longas da seção ativa entre 35% e 90% do tempo da seção
-    var prog = Math.max(0, Math.min(1, (el / PERIOD - 0.35) / 0.55));
+    var P = PER[pages[idx]] || 35000, elapsed = Date.now() - t0; $('bar').style.width = Math.min(100, elapsed / P * 100) + '%';
+    var prog = Math.max(0, Math.min(1, (elapsed / P - 0.35) / 0.55));
     var boxes = document.querySelectorAll('.page.on .scroll');
     for (var k = 0; k < boxes.length; k++) boxes[k].scrollTop = prog * (boxes[k].scrollHeight - boxes[k].clientHeight);
-    if (el >= PERIOD) show(pages[(idx + 1) % pages.length]);
+    if (elapsed >= P) show(pages[(idx + 1) % pages.length]);
   }, 250);
   setInterval(function () { var d = new Date(); $('clock').textContent = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }, 1000);
   window.addEventListener('resize', function () { show(pages[idx]); });
   window.__show = show;
   fill(DATA_EMBUTIDA);
-  show('resumo');
+  show('visao');
 
-  // ---------- dados ao vivo (Apps Script -> painel_dados.json no Drive)
   function buscarDados(cb) {
-    if (!URL_DADOS || !window.fetch) { cb(null); return; }
+    if (!URL_DADOS || !window.fetch || /estatico/.test(location.search)) { cb(null); return; }
     var feito = false;
     var timer = setTimeout(function () { if (!feito) { feito = true; cb(null); } }, 15000);
     fetch(URL_DADOS + '&t=' + Date.now(), { cache: 'no-store' })
@@ -313,7 +578,6 @@ var URL_DADOS = 'https://script.google.com/macros/s/AKfycbxzUKH1lREpWRiVaxhPU7T5
   window.__atualizar = atualizar;
   atualizar();
   setInterval(atualizar, 10 * 60 * 1000);
-  // recarrega a página a cada 60 min para pegar eventuais mudanças de layout
   setTimeout(function () { location.reload(true); }, 60 * 60 * 1000);
 })();
 </script>
